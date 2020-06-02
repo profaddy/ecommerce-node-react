@@ -39,6 +39,33 @@ const GET_PRODUCTS_BY_ID = gql`
     }
   }
 `;
+const getProductList = gql`
+query getProducts($first: [Int!]!) {
+  nodes(first: $first) {
+    ... on Products {
+      title
+      handle
+      descriptionHtml
+      id
+      images(first: 1) {
+        edges {
+          node {
+            originalSrc
+            altText
+          }
+        }
+      }
+      variants(first: 1) {
+        edges {
+          node {
+            price
+            id
+          }
+        }
+      }
+    }
+  }
+}`
 
 class ResourceListWithProducts extends React.Component {
   static contextType = Context;
@@ -55,6 +82,15 @@ class ResourceListWithProducts extends React.Component {
 
     const twoWeeksFromNow = new Date(Date.now() + 12096e5).toDateString();
     return (
+      <>
+        {/* <Query query={getProductList} variables={{ first: 10 }}>
+        {({ data, loading, error }) => {
+                    console.log(data,loading,error,"graphql params")
+          if (loading) { return <div>Loading…</div>; }
+          if (error) { return <div>{error.message}</div>; }
+          return(<>Success</>);
+        }}
+        </Query> */}
       <Query query={GET_PRODUCTS_BY_ID} variables={{ ids: store.get('ids') }}>
         {({ data, loading, error }) => {
           if (loading) { return <div>Loading…</div>; }
@@ -116,6 +152,7 @@ class ResourceListWithProducts extends React.Component {
           );
         }}
       </Query>
+      </>
     );
   }
 }
