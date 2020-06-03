@@ -1,102 +1,70 @@
 import React, { useEffect, useState } from 'react';
 import api from '../utils/api';
-import axios from "axios";
-import { Query } from 'react-apollo';
+import isEmpty from 'lodash/isEmpty';
+import axios from 'axios';
+import { Card, ResourceList, TextStyle, Thumbnail } from '@shopify/polaris';
 import { ResourcePicker, TitleBar } from '@shopify/app-bridge-react';
-import { EmptyState, Layout, Page } from '@shopify/polaris';
+import { Page } from '@shopify/polaris';
 
-import gql from 'graphql-tag';
-
-
-const query1 = gql`
-  query getProductList1 {
-    shop {
-      name
-    }
-  }
-`;
-const test = gql`
-  {
-    products(first: 10) {
-      edges {
-        node {
-          id
-          title
-        }
-      }
-    }
-  }
-`;
-const GET_CURRENT_SHOP = gql`
-  {
-    shop {
-      name
-    }
-  }
-`;
-const query2 = gql`
-  query {
-    products {
-      edges {
-        node {
-          id
-          title
-        }
-      }
-    }
-  }
-`;
-
-// `{
-//     products(first:10){
-//     edges{
-//     node{
-//       id,
-//       title
-//     }
-//   }
-// }
-// }`
 const Index = (props) => {
-  const [open, setModalOpen] = useState(true);
-  const [products,setProducts] = useState([])
+  const [open, setModalOpen] = useState(false);
+  const [products, setProducts] = useState([]);
   const getProducts = async () => {
-    const response = await axios.get('/products');
-    console.log(response);
-    // setProducts(response.products)
+    const response = await api.get('products');
+    return response.data.data;
   };
   useEffect(() => {
-    console.log('props', props);
-    getProducts();
+    async function fetchData() {
+      if (isEmpty(products)) {
+        try {
+          const data = await getProducts();
+          setProducts(data.products);
+        } catch (error) {
+          console.error(error, 'error');
+        }
+      } else {
+        alert('Error occured while fetching products');
+      }
+    }
+    fetchData();
   }, []);
   return (
     <Page>
-        {products.map((item) => {
-            return <>{item.title}</>
-        })}
-        {products.length === 0 ?<>No product</>:<>products available</> 
-        }
-      {/* <Query query={GET_CURRENT_SHOP}>
-        {({ data, loading, error }) => {
-          //   const { viewer } = data;
-          console.log(data, loading, error, 'params');
-          if (!!loading) {
-            return <>loading...</>;
-          }
-          if (!!error) {
-            return <>error</>;
-          }
-          if (!data) {
-            return null;
-          }
-
-          return (
-            <div>
-              Success
-            </div>
-          );
-        }}
-      </Query> */}
+      <Card>
+        {isEmpty(products) && <>No Products available</>}
+        {!isEmpty(products) && (
+          <ResourceList
+            showHeader
+            resourceName={{ singular: 'product', plural: 'products' }}
+            items={products}
+            renderItem={(product) => {
+              const { title, id, created_at } = product;
+              const media = (
+                <Thumbnail
+                  source={product.images[0] ? product.images[0].src : ''}
+                  alt={product.images[0] ? product.images[0].alt : ''}
+                />
+              );
+              return (
+                <ResourceList.Item
+                  id={id}
+                  title={title}
+                  media={media}
+                  created_at={created_at}
+                  accessibilityLabel={`View details for ${title}`}
+                >
+                  <h3>
+                    <TextStyle variation="strong">{title}</TextStyle>
+                  </h3>
+                  <div>{created_at}</div>
+                </ResourceList.Item>
+              );
+            }}
+          />
+        )}
+      </Card>
+      {/* {isEmpty(products) ?<>No products Available</>:<>products available</> 
+        } */}
       <TitleBar
         primaryAction={{
           content: 'Select products',
