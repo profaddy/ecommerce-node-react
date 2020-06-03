@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import api from '../utils/api';
+import Router from 'next/router'
 import isEmpty from 'lodash/isEmpty';
 import axios from 'axios';
 import { Card, ResourceList, TextStyle, Thumbnail } from '@shopify/polaris';
@@ -31,7 +32,7 @@ const Index = (props) => {
   return (
     <Page>
       <Card>
-        {isEmpty(products) && <>No Products available</>}
+        {isEmpty(products) && <>No Products available.</>}
         {!isEmpty(products) && (
           <ResourceList
             showHeader
@@ -52,6 +53,7 @@ const Index = (props) => {
                   media={media}
                   created_at={created_at}
                   accessibilityLabel={`View details for ${title}`}
+                  onClick={() => Router.push('/product-detail')}
                 >
                   <h3>
                     <TextStyle variation="strong">{title}</TextStyle>
@@ -63,8 +65,6 @@ const Index = (props) => {
           />
         )}
       </Card>
-      {/* {isEmpty(products) ?<>No products Available</>:<>products available</> 
-        } */}
       <TitleBar
         primaryAction={{
           content: 'Select products',
