@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import api from '../utils/api';
-import Router from 'next/router'
+import Router from 'next/router';
 import isEmpty from 'lodash/isEmpty';
-import axios from 'axios';
+import Dashboard from "./dashboard/Dashboard.js"
 import { Card, ResourceList, TextStyle, Thumbnail } from '@shopify/polaris';
 import { ResourcePicker, TitleBar } from '@shopify/app-bridge-react';
 import { Page } from '@shopify/polaris';
-
 const Index = (props) => {
   const [open, setModalOpen] = useState(false);
   const [products, setProducts] = useState([]);
@@ -30,8 +29,10 @@ const Index = (props) => {
     fetchData();
   }, []);
   return (
-    <Page>
+    <>
+      <Dashboard />
       <Card>
+        <button onClick={() => Router.push("/dashboard/Dashboard")}></button>
         {isEmpty(products) && <>No Products available.</>}
         {!isEmpty(products) && (
           <ResourceList
@@ -65,20 +66,17 @@ const Index = (props) => {
           />
         )}
       </Card>
-      <TitleBar
-        primaryAction={{
-          content: 'Select products',
-          onAction: () => setModalOpen(true),
-        }}
-      />
-      <ResourcePicker
-        resourceType="Product"
-        showVariants={false}
-        open={open}
-        onSelection={(resources) => this.handleSelection(resources)}
-        onCancel={() => setModalOpen(false)}
-      />
-    </Page>
+    </>
   );
 };
+const styles = {
+  eidtCardContainer:{
+    display:"flex",
+    flexWrap:"wrap",
+  },
+  editCardItem:{
+    margin: "15px 15px 15px 0px",
+    minWidth:275
+  }
+}
 export default Index;

@@ -38,7 +38,7 @@ class MyApp extends App {
           <title>Sample App</title>
           <meta charSet="utf-8" />
         </Head>
-        <Provider config={config}>
+        <Provider config={config} >
           <AppProvider i18n={translations}>
             <ApolloProvider client={client}>
               <CookiesProvider>
