@@ -9,7 +9,7 @@ const Dashboard = (props) => {
 <div style={styles.header}>
     Start Editing Products
 </div>
-      <div style={styles.eidtCardContainer}>
+      <div key= {new Date()} style={styles.eidtCardContainer}>
         {editOptions.map((item) => {
           return (
             <div style={styles.editCardItem}>

@@ -48,7 +48,7 @@ app.prepare().then(() => {
           sameSite: 'none'
         });
         console.log("afterAuth");
-      
+        ctx.redirect('/')
       }
     })
   );

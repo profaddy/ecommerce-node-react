@@ -30,6 +30,7 @@ const Index = (props) => {
   }, []);
   return (
     <>
+    <button onClick={() => {Router.push("/")}}>Home</button>
       <Dashboard />
       <Card>
         <button onClick={() => Router.push("/dashboard/Dashboard")}></button>

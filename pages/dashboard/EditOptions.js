@@ -7,7 +7,7 @@ const editOptions = [
     {
       cardColor: '#0D764B',
       title: 'Price',
-      navigationPath: '/product-detail',
+      navigationPath: '/EditPages/PriceEdit/PriceEdit',
     },
     {
       cardColor: '#A06E21',
