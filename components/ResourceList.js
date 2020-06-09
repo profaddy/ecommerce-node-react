@@ -1,31 +1,22 @@
 import {
   Card,
   ResourceList,
+  ResourceItem,
   Stack,
   TextStyle,
   Thumbnail,
 } from '@shopify/polaris';
 
 const ResourceListComponent = (props) => {
-    const {itemList,handleSelectedProduct,selectedItems} = props
-    console.log(itemList);
-//   static contextType = Context;
-
-    // const app = this.context;
-    // const redirectToProduct = () => {
-    //   const redirect = Redirect.create(app);
-    //   redirect.dispatch(
-    //     Redirect.Action.APP,
-    //     '/edit-products',
-    //   );
-    // };
-
+    const {itemList,handleSelectedProduct,selectedItems} = props;
+    const emptyStateMarkup = () => {
+      return (
+        <EmptyState heading="Upload a file to get started" />
+      );
+    }
     const twoWeeksFromNow = new Date(Date.now() + 12096e5).toDateString();
     return (
       <>
-
-          {/* if (loading) { return <div>Loading…</div>; }
-          if (error) { return <div>{error.message}</div>; } */}
             <Card>
               <ResourceList
                 showHeader
@@ -34,27 +25,27 @@ const ResourceListComponent = (props) => {
                 selectedItems={selectedItems}
                 onSelectionChange={handleSelectedProduct}
                 selectable
+                emptyState={emptyStateMarkup}
                 renderItem={(item) => {
-                //   const media = (
-                //     <Thumbnail`
-                //       source={
-                //         item`````````````````````````````````````````````.images.edges[0]
-                //           ? item.images.edges[0].node.originalSrc
-                //           : ''
-                //       }
-                //       alt={
-                //         item.images.edges[0]
-                //           ? item.images.edges[0].node.altText
-                //           : ''
-                //       }
-                //     />
-                //   );
+                  // const media = (
+                  //   <Thumbnail`
+                  //     source={
+                  //       item.images
+                  //         ? item.images.originalSrc
+                  //         : ''
+                  //     }
+                  //     alt={
+                  //       item.images
+                  //         ? item.images.altText
+                  //         : ''
+                  //     }
+                  //   />
+                  // )
                   const price = item.variants.price;
                   return (
-                    <ResourceList.Item
+                    <ResourceItem
                       id={item.id}
-                      selectable
-                    //   media={media}
+                      // media={media}
                       accessibilityLabel={`View details for ${item.title}`}
                     >
                       <Stack>
@@ -72,7 +63,7 @@ const ResourceListComponent = (props) => {
                           <p>Expires on {twoWeeksFromNow} </p>
                         </Stack.Item>
                       </Stack>
-                    </ResourceList.Item>
+                    </ResourceItem>
                   );
                 }}
               />

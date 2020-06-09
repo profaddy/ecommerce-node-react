@@ -11,12 +11,13 @@ import {
   ResourceList,
 } from '@shopify/polaris';
 import Router from 'next/router';
-import ResourceListComponent from '../../../components/ResourceList'
+import ResourceListComponent from '../../../components/ResourceList';
 
 const PriceEdit = () => {
   const [values, setFormValues] = useState({
     filter: 'price',
     filterAction: 'is',
+    editOption: `changeToCustomValue`,
   });
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [products, setProducts] = useState([]);
@@ -49,6 +50,52 @@ const PriceEdit = () => {
         return [{ label: 'is', value: 'is' }];
     }
   };
+  const EditOptions = [
+    { label: 'Change price to', value: 'changeToCustomValue' },
+    { label: 'Adjust price by amount', value: 'addPriceByAmount' },
+    { label: 'Adjust price by percentage', value: 'addPriceByPercentage' },
+  ];
+
+  const getContentBasedOnEditSelection = () => {
+    const editOption = { values };
+    switch (editOption) {
+      case 'changeToCustomValue':
+        return (
+          <TextField
+            name="editValue"
+            label={'Price'}
+            value={values.editValue}
+            onChange={(value) => setFormValues({ ...values, editValue: value })}
+          />
+        );
+      case 'addPriceByAmount':
+        return (
+          <TextField
+            name="editValue"
+            label={'Price in INR'}
+            value={values.editValue}
+            onChange={(value) => setFormValues({ ...values, editValue: value })}
+          />
+        );
+      case 'addPriceByPercentage':
+        return (
+          <TextField
+            name="editValue"
+            label={'Price in %'}
+            value={values.editValue}
+            onChange={(value) => setFormValues({ ...values, editValue: value })}
+          />
+        );
+      default:
+        return (
+          <TextField
+            name="editValue"
+            value={values.editValue}
+            onChange={(value) => setFormValues({ ...values, editValue: value })}
+          />
+        );
+    }
+  };
   return (
     <div>
       <button
@@ -58,7 +105,7 @@ const PriceEdit = () => {
       >
         Home
       </button>
-      <div>Prie Edit Page</div>
+      <div style={styles.step}>Step1: Filter Products</div>
       <div>
         <form onSubmit={onSubmit}>
           <Card sectioned>
@@ -103,16 +150,40 @@ const PriceEdit = () => {
                   }}
                   disabled={false}
                 >
-                  Save
+                  Apply
                 </Button>
               </div>
             </div>
           </Card>
+          <div style={styles.step}>Step2: Select Products</div>
+          {products.length === 0 && <Card>
+            <div style={styles.emptyState}>Please apply filter to list products</div>
+            </Card>}
           <ResourceListComponent
             itemList={products}
             selectedItems={selectedProducts}
-            handleSelectedProduct={handleSelectedProduct}
+            handleSelectedProduct={setSelectedProducts}
           />
+          <div style={styles.step}>Step3: Choose How to Edit</div>
+          <Card>
+            <div style={styles.editOptionWrapper}>
+            <div style={styles.editOptionItem}>
+              <Select
+                key={'editOptions'}
+                name="editOption"
+                options={EditOptions}
+                onChange={(value) => {
+                  setFormValues({ ...values, editOption: value });
+                }}
+                value={values.editOption}
+              />
+            </div>
+            <div style={styles.editOptionItem}>
+              {getContentBasedOnEditSelection()}
+              {/* {values.editOption === "changeToCustomValue" } */}
+            </div>
+            </div>
+          </Card>
         </form>
         <br />
         <Card subdued sectioned title="Internal Form Values">
@@ -132,6 +203,21 @@ const styles = {
     marginRight: 15,
     minWidth: 200,
   },
+  step: {
+    margin: 15,
+  },
+  editOptionWrapper: {
+    display: 'flex',
+    padding: 15,
+    flexDirection: 'column',
+  },
+  editOptionItem: {
+    marginBottom:15,
+    width: '50%',
+  },
+  emptyState:{
+    padding:15
+  }
 };
 
 export default PriceEdit;

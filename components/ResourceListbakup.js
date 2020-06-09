@@ -6,6 +6,7 @@ import {
   Stack,
   TextStyle,
   Thumbnail,
+  EmptyState,
 } from '@shopify/polaris';
 import store from 'store-js';
 import { Redirect } from '@shopify/app-bridge/actions';
@@ -79,7 +80,11 @@ class ResourceListWithProducts extends React.Component {
         '/edit-products',
       );
     };
-
+const emptyStateMarkup = () => {
+  return (
+    <EmptyState heading="Upload a file to get started" />
+  );
+}
     const twoWeeksFromNow = new Date(Date.now() + 12096e5).toDateString();
     return (
       <>
@@ -102,6 +107,7 @@ class ResourceListWithProducts extends React.Component {
                 showHeader
                 resourceName={{ singular: 'Product', plural: 'Products' }}
                 items={data.nodes}
+                emptyState={emptyStateMarkup}
                 renderItem={(item) => {
                   const media = (
                     <Thumbnail
