@@ -23,7 +23,7 @@ const PriceEdit = () => {
   const [products, setProducts] = useState([]);
 
   const fetchProducts = async () => {
-    const { data } = await api.get('products');
+    const { data } = await api.get('products.json');
     setProducts(data.data.products);
   };
   const handleSelectedProduct = (item) => {
@@ -34,6 +34,11 @@ const PriceEdit = () => {
     e.preventDefault();
     console.log('values', values);
   };
+  const updateSelectedProducts = () => {
+    console.log(selectedProducts,"selectedProducts");
+    const result = api.put(`products.json`,{data:selectedProducts});
+    console.log(result);
+  }
   const getFilterOptions = () => {
     switch (values.filter) {
       case 'price':
@@ -186,6 +191,10 @@ const PriceEdit = () => {
           </Card>
         </form>
         <br />
+        <Card>
+          <Button onClick={() => setFormValues({...values})}>Reset</Button>
+          <Button onClick={() => updateSelectedProducts()}>Update</Button>
+        </Card>
         <Card subdued sectioned title="Internal Form Values">
           <code>{JSON.stringify(values, null, 2)}</code>
         </Card>

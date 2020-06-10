@@ -3,9 +3,8 @@ const dotenv = require('dotenv');
 dotenv.config();
 const express = require("express");
 const cors = require('@koa/cors');
-const router = express.Router();
 const morgan = require("morgan");
-const bodyParser = require("body-parser");
+const bodyParser = require("koa-bodyparser");
 // const mongoose = require("mongoose");
 const Koa = require('koa');
 const next = require('next');
@@ -52,6 +51,7 @@ app.prepare().then(() => {
       }
     })
   );
+  server.use(bodyParser());
   server.use(router.routes());
   server.use(verifyRequest());
   server.use(async (ctx) => {
@@ -63,18 +63,37 @@ app.prepare().then(() => {
   router.get('/api/v1/:endpoint', async (ctx) => {
     try {
       const endpoint = ctx.params.endpoint;
-      const results = await fetch(`https://${ctx.cookies.get('shopOrigin')}/admin/api/2020-04/${endpoint}.json`, {
+      const response = await fetch(`https://${ctx.cookies.get('shopOrigin')}/admin/api/2020-04/${endpoint}`, {
       headers: {
-          "X-Shopify-Access-Token": ctx.cookies.get('accessToken'),
-        },
-      })
-      .then(response => response.json())
-      .then(json => {
-        return json;
-      });
+            "X-Shopify-Access-Token": ctx.cookies.get('accessToken'),
+          },
+        });
+        const result = await response.json();
       ctx.body = {
         status: 'success',
-        data: results
+        data: result
+      };
+    } catch (err) {
+      console.log(err)
+    }
+  })
+  router.put('/api/v1/:endpoint', async (ctx) => {
+    try {
+      console.log(ctx.request.body,"ctx response");
+      // const endpoint = ctx.params.endpoint;
+      // const response = await fetch(`https://${ctx.cookies.get('shopOrigin')}/admin/api/2020-04/${endpoint}`, {
+      // method:"put",
+      // headers: {
+      //     "X-Shopify-Access-Token": ctx.cookies.get('accessToken'),
+      //   },
+      //   body:JSON.stringify(data)
+      // })
+      // const result = await response.json();
+      // console.log(result,"result")
+      const result = []
+      ctx.body = {
+        status: 'success',
+        data: result
       };
     } catch (err) {
       console.log(err)
