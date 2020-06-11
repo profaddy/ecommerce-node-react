@@ -34,10 +34,19 @@ const PriceEdit = () => {
     e.preventDefault();
     console.log('values', values);
   };
-  const updateSelectedProducts = () => {
+  const updateSelectedProducts = async () => {
     console.log(selectedProducts,"selectedProducts");
-    const result = api.put(`products.json`,{data:selectedProducts});
-    console.log(result);
+    var productsToBeUpdated = products.filter(function(item) {
+      return selectedProducts.indexOf(item.id) !== -1;
+});
+const {editOption,editValue} = values
+const paylaod = {
+  products:productsToBeUpdated,
+  editOption,
+  editValue
+}
+    const {data} = await api.put(`products.json`,paylaod);
+    console.log(data);
   }
   const getFilterOptions = () => {
     switch (values.filter) {

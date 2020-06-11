@@ -80,16 +80,26 @@ app.prepare().then(() => {
   router.put('/api/v1/:endpoint', async (ctx) => {
     try {
       console.log(ctx.request.body,"ctx response");
-      // const endpoint = ctx.params.endpoint;
-      // const response = await fetch(`https://${ctx.cookies.get('shopOrigin')}/admin/api/2020-04/${endpoint}`, {
-      // method:"put",
-      // headers: {
-      //     "X-Shopify-Access-Token": ctx.cookies.get('accessToken'),
-      //   },
-      //   body:JSON.stringify(data)
-      // })
-      // const result = await response.json();
-      // console.log(result,"result")
+      const reqData = ctx.request.body;
+      reqData.products.forEach(async (product) => {
+        const updatedPrice = Number(product.variants[0].price) + reqData.editValue;
+        console.log(updatedPrice,"updatedPrice");
+        const variant = product.variants[0]
+        console.log(variant);
+        const url =`https://${ctx.cookies.get('shopOrigin')}/admin/api/2020-04/variants/${variant.id}.json`
+        const payload = {
+          variant:{
+            id:product.id,
+            price:`${updatedPrice}`
+          }
+        }
+        const response = await fetch(url,{    headers: {
+            'Content-type': 'application/json; charset=UTF-8', // Indicates the content 
+          "X-Shopify-Access-Token": ctx.cookies.get('accessToken'),
+        },method:'put',body:JSON.stringify(payload)})
+        const resp = await response.json();
+        console.log(`reuqest completed for ${product.title}`,resp);
+      })
       const result = []
       ctx.body = {
         status: 'success',

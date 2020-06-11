@@ -57,7 +57,7 @@ const ResourceListComponent = (props) => {
                           </h3>
                         </Stack.Item>
                         <Stack.Item>
-                          <p>{item.price}</p>
+                          <p>{item.variants[0].price}</p>
                         </Stack.Item>
                         <Stack.Item>
                           <p>Expires on {twoWeeksFromNow} </p>
