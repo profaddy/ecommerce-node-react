@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import api from '../../../utils/api';
-
+import isEmpty from 'lodash/isEmpty';
 import filters from './filters';
-import { Formik, Form, Field } from 'formik';
 import {
   Select,
   Card,
@@ -13,12 +12,14 @@ import {
 import Router from 'next/router';
 import ResourceListComponent from '../../../components/ResourceList';
 
+const initialFormValues = {
+  filter: 'price',
+  filterAction: 'is',
+  editOption: `changeToCustomValue`,
+}
 const PriceEdit = () => {
-  const [values, setFormValues] = useState({
-    filter: 'price',
-    filterAction: 'is',
-    editOption: `changeToCustomValue`,
-  });
+  const [values, setFormValues] = useState(initialFormValues);
+  const [formSubmit,setFormSubmit] = useState(false); 
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [products, setProducts] = useState([]);
 
@@ -35,17 +36,26 @@ const PriceEdit = () => {
     console.log('values', values);
   };
   const updateSelectedProducts = async () => {
+    setFormSubmit(true);
     console.log(selectedProducts,"selectedProducts");
     var productsToBeUpdated = products.filter(function(item) {
       return selectedProducts.indexOf(item.id) !== -1;
 });
+const variantsToBeUpdated = productsToBeUpdated.reduce((acc,item) => {
+  console.log(item,"item")
+    return [...acc,...item.variants]
+},[]);
+console.log(variantsToBeUpdated,"variantsToBeUpdated");
 const {editOption,editValue} = values
 const paylaod = {
   products:productsToBeUpdated,
+  variants:variantsToBeUpdated,
   editOption,
   editValue
 }
     const {data} = await api.put(`products.json`,paylaod);
+    setFormSubmit(false);
+    fetchProducts();
     console.log(data);
   }
   const getFilterOptions = () => {
@@ -154,6 +164,7 @@ const paylaod = {
                     setFormValues({ ...values, filterValue: value })
                   }
                 />
+                {formSubmit === true && isEmpty(values.filterValue) && <div style={{color:"red"}}>Please provide a value</div>}
               </div>
               <div>
                 <Button
@@ -201,7 +212,7 @@ const paylaod = {
         </form>
         <br />
         <Card>
-          <Button onClick={() => setFormValues({...values})}>Reset</Button>
+          <Button onClick={() => setFormValues(initialFormValues)}>Reset</Button>
           <Button onClick={() => updateSelectedProducts()}>Update</Button>
         </Card>
         <Card subdued sectioned title="Internal Form Values">

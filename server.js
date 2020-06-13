@@ -80,16 +80,15 @@ app.prepare().then(() => {
   router.put('/api/v1/:endpoint', async (ctx) => {
     try {
       console.log(ctx.request.body,"ctx response");
-      const reqData = ctx.request.body;
-      reqData.products.forEach(async (product) => {
-        const updatedPrice = Number(product.variants[0].price) + reqData.editValue;
-        console.log(updatedPrice,"updatedPrice");
-        const variant = product.variants[0]
-        console.log(variant);
+      // const reqData = ctx.request.body;
+      const {editOption,editValue,variants} = ctx.request.body
+      variants.forEach(async (variant) => {
+        const updatedPrice = getUpdatedPrice(editOption,Number(variant.price),Number(editValue));
+        console.log(updatedPrice,"updatedPrice>>");
         const url =`https://${ctx.cookies.get('shopOrigin')}/admin/api/2020-04/variants/${variant.id}.json`
         const payload = {
           variant:{
-            id:product.id,
+            id:variant.id,
             price:`${updatedPrice}`
           }
         }
@@ -98,7 +97,7 @@ app.prepare().then(() => {
           "X-Shopify-Access-Token": ctx.cookies.get('accessToken'),
         },method:'put',body:JSON.stringify(payload)})
         const resp = await response.json();
-        console.log(`reuqest completed for ${product.title}`,resp);
+        console.log(`reuqest completed for ${variant.title}`,resp);
       })
       const result = []
       ctx.body = {
@@ -114,3 +113,19 @@ app.prepare().then(() => {
     console.log(`> Ready on http://localhost:${port}`);
   });
 });
+
+//helpers
+const getUpdatedPrice = (editOption,currentPrice,editValue) => {
+  console.log(editOption,"editOption");
+  switch(editOption){
+    case "changeToCustomValue":
+      return editValue;
+    case "addPriceByAmount":
+      return currentPrice + editValue;
+    case "addPriceByPercentage":
+      const offsetToBeAdded = (currentPrice * editValue)/100
+      return currentPrice + offsetToBeAdded;
+    default:
+      return editValue;
+  }
+}
