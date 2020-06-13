@@ -46,10 +46,10 @@ app.prepare().then(() => {
       }
     })
   );
+  server.use(verifyRequest());
   server.use(bodyParser());
   server.use(productRouter.routes());
   server.use(productRouter.allowedMethods());
-  server.use(verifyRequest());
   server.use(async (ctx) => {
     await handle(ctx.req, ctx.res);
     ctx.respond = false;

@@ -1,4 +1,4 @@
-const styles = {
+export const styles = {
     container:{
         margin:20
     },
@@ -17,4 +17,3 @@ const styles = {
   },
 };
 
-export default styles;

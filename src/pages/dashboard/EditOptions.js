@@ -1,4 +1,4 @@
-const editOptions = [
+export const editOptions = [
     {
       cardColor: '#3462A9',
       title: 'Product SEO(Free)',
@@ -7,7 +7,7 @@ const editOptions = [
     {
       cardColor: '#0D764B',
       title: 'Price',
-      navigationPath: '/EditPages/PriceEdit/PriceEdit',
+      navigationPath: '/PriceEdit',
     },
     {
       cardColor: '#A06E21',

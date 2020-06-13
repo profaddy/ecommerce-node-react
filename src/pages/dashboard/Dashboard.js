@@ -1,7 +1,7 @@
 import React from 'react';
-import EditCard from '../../components/EditCard/EditCard';
-import editOptions from "./EditOptions";
-import styles from "./styles";
+import EditCard from '../../../components/EditCard/EditCard';
+import {editOptions} from "./EditOptions";
+import {styles} from "./styles";
 
 const Dashboard = (props) => {
   return (

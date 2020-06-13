@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import api from '../utils/api';
 import Router from 'next/router';
 import isEmpty from 'lodash/isEmpty';
-import Dashboard from "./dashboard/Dashboard.js"
+import Dashboard from "../src/pages/dashboard/Dashboard.js"
 import { Card, ResourceList, TextStyle, Thumbnail } from '@shopify/polaris';
 import { ResourcePicker, TitleBar } from '@shopify/app-bridge-react';
 import { Page } from '@shopify/polaris';
