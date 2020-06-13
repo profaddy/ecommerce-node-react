@@ -1,5 +1,6 @@
 'use strict';
-import Router from 'koa-router';
+// import Router from 'koa-router';
+const Router = require('koa-router');
 const router = new Router();
 router.get('/api/v1/:endpoint', async (ctx) => {
   try {
@@ -61,7 +62,7 @@ router.put('/api/v1/:endpoint', async (ctx) => {
     console.log(err);
   }
 });
-export default router;
+module.exports = router
 
 //helpers
 const getUpdatedPrice = (editOption, currentPrice, editValue) => {

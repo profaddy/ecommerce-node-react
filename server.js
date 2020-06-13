@@ -13,7 +13,7 @@ const port = parseInt(process.env.PORT, 10) || 3001;
 const dev = process.env.NODE_ENV !== 'production';
 const app = next({ dev });
 const handle = app.getRequestHandler();
-import productRouter from "./server/routers/productRouter";
+const productRouter = require("./server/routers/productRouter");
 
 const {
   SHOPIFY_API_SECRET_KEY,
