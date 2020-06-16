@@ -9,11 +9,26 @@ const { default: createShopifyAuth } = require('@shopify/koa-shopify-auth');
 const { verifyRequest } = require('@shopify/koa-shopify-auth');
 const session = require('koa-session');
 
-const port = parseInt(process.env.PORT, 10) || 3001;
+const port = parseInt(process.env.PORT, 10) || 3000;
 const dev = process.env.NODE_ENV !== 'production';
 const app = next({ dev });
 const handle = app.getRequestHandler();
 const productRouter = require("./server/routers/productRouter");
+var fs = require('fs');
+var https = require('https');
+var privateKey  = fs.readFileSync('/etc/letsencrypt/live/react.vowelweb.com/privkey.pem', 'utf8');
+var certificate = fs.readFileSync('/etc/letsencrypt/live/react.vowelweb.com/fullchain.pem', 'utf8');
+
+const config = {
+https: {
+options: {
+key: privateKey,
+cert: certificate,
+},
+
+},
+
+};
 
 const {
   SHOPIFY_API_SECRET_KEY,
@@ -57,8 +72,18 @@ app.prepare().then(() => {
     return
   });
   server.use(cors())
-  server.listen(port, () => {
-    console.log(`> Ready on http://localhost:${port}`);
-  });
-});
+  const serverCallback = server.callback();
 
+const httpsServer = https.createServer(config.https.options, serverCallback);
+  httpsServer.listen(port, function(err) {
+      console.log(`> Ready on http://localhost:${port}`);
+if (!!err) {
+
+console.error('HTTPS server FAIL: ', err, (err && err.stack));
+
+}
+})
+  // server.listen(port, () => {
+  //   console.log(`> Ready on http://localhost:${port}`);
+  // });
+});
