@@ -10,7 +10,7 @@ const Index = (props) => {
   const [open, setModalOpen] = useState(false);
   const [products, setProducts] = useState([]);
   const getProducts = async () => {
-    const response = await api.get('products');
+    const response = await api.get('test');
     return response.data.data;
   };
   useEffect(() => {

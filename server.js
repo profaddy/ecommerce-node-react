@@ -14,6 +14,8 @@ const dev = process.env.NODE_ENV !== 'production';
 const app = next({ dev });
 const handle = app.getRequestHandler();
 const productRouter = require("./server/routers/productRouter");
+const testRouter = require("./server/routers/testRouter");
+
 
 const {
   SHOPIFY_API_SECRET_KEY,
@@ -50,6 +52,8 @@ app.prepare().then(() => {
   server.use(bodyParser());
   server.use(productRouter.routes());
   server.use(productRouter.allowedMethods());
+  server.use(testRouter.routes());
+  server.use(testRouter.allowedMethods());
   server.use(async (ctx) => {
     await handle(ctx.req, ctx.res);
     ctx.respond = false;

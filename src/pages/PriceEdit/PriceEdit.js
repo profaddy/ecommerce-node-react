@@ -24,7 +24,9 @@ const PriceEdit = () => {
   const [products, setProducts] = useState([]);
 
   const fetchProducts = async () => {
-    const { data } = await api.get('products.json');
+    const filterType = filters.filter((item) => item.value === values.filter)[0].type;
+    console.log(filterType);
+    const { data } = await api.get('products');
     setProducts(data.data.products);
   };
   const handleSelectedProduct = (item) => {
@@ -62,12 +64,16 @@ const paylaod = {
     switch (values.filter) {
       case 'price':
         return [
-          { label: 'is', value: 'is' },
-          { label: 'is less than', value: 'less than' },
-          { label: 'greater than', value: 'greater than' },
+          { label: 'of all variants more than', value: '===' },
+          { label: 'of all variants is less than', value: '>' },
+          { label: 'of all variants greater than', value: '<' },
         ];
       case 'description':
-        return [{ label: 'is', value: 'is' }];
+        return [
+          { label: 'contains', value: '===' },
+          { label: 'does not contain', value: '!==' },
+          { label: 'is empty', value: '!' }
+      ];
       default:
         [];
 
@@ -140,7 +146,7 @@ const paylaod = {
                   name="filter"
                   options={filters}
                   onChange={(value) => {
-                    setFormValues({ ...values, filter: value });
+                    setFormValues({ ...values, filter: value, filterAction:getFilterOptions() });
                   }}
                   value={values.filter}
                 />

@@ -6,18 +6,20 @@ import {
   TextStyle,
   Thumbnail,
 } from '@shopify/polaris';
+import ProductTable from './ProductTable/ProductTable';
+import { styles } from '../src/pages/dashboard/styles';
 
 const ResourceListComponent = (props) => {
-    const {itemList,handleSelectedProduct,selectedItems} = props;
-    const emptyStateMarkup = () => {
-      return (
-        <EmptyState heading="Upload a file to get started" />
-      );
-    }
-    const twoWeeksFromNow = new Date(Date.now() + 12096e5).toDateString();
-    return (
-      <>
-            <Card>
+  const { itemList, handleSelectedProduct, selectedItems } = props;
+  const emptyStateMarkup = () => {
+    return <EmptyState heading="Upload a file to get started" />;
+  };
+  const twoWeeksFromNow = new Date(Date.now() + 12096e5).toDateString();
+  return (
+    <>
+      <Card>
+        <ProductTable products={itemList} />
+        {/* 
               <ResourceList
                 showHeader
                 resourceName={{ singular: 'Product', plural: 'Products' }}
@@ -43,34 +45,18 @@ const ResourceListComponent = (props) => {
                   // )
                   const price = item.variants.price;
                   return (
-                    <ResourceItem
-                      id={item.id}
-                      // media={media}
-                      accessibilityLabel={`View details for ${item.title}`}
-                    >
-                      <Stack>
-                        <Stack.Item fill>
-                          <h3>
-                            <TextStyle variation="strong">
-                              {item.title}
-                            </TextStyle>
-                          </h3>
-                        </Stack.Item>
-                        <Stack.Item>
-                          <p>{item.variants[0].price}</p>
-                        </Stack.Item>
-                        <Stack.Item>
-                          <p>Expires on {twoWeeksFromNow} </p>
-                        </Stack.Item>
-                      </Stack>
-                    </ResourceItem>
+                    // <ResourceItem
+                    //   id={item.id}
+                    //   // media={media}
+                    //   accessibilityLabel={`View details for ${item.title}`}
+                    // >
+                    // </ResourceItem>
                   );
                 }}
-              />
-            </Card>
-      </>
-    );
-  }
-
+              /> */}
+      </Card>
+    </>
+  );
+};
 
 export default ResourceListComponent;
