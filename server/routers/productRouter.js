@@ -6,8 +6,15 @@ const router = new Router({ prefix: '/api/v1/products' })
 
 router.get('/', async (ctx) => {
   try {
-    console.log("products")
-    const endpoint = ctx.params.endpoint;
+    console.log("products",ctx.query)
+    // const endpoint = ctx.params.endpoint;
+    const {filter,filterType,filterAction,filterValue} = ctx.query;
+    const filterOptions = {
+      filterValue,
+      filterAction,
+      filter
+    }
+
     const response = await fetch(
       `https://${ctx.cookies.get('shopOrigin')}/admin/api/2020-04/products.json`,
       {
@@ -16,16 +23,26 @@ router.get('/', async (ctx) => {
         },
       }
     );
-    const result = await response.json();
+    const {products} = await response.json();
+    console.log(products,filterOptions,"main call");
+    let filteredProducts;
+    if(filterType === "product"){
+      filteredProducts = filterByProduct(products,filterOptions);
+    }else if(filterType === "variant"){
+      filteredProducts = filterByVariant(products,filterOptions);
+    }else{
+      filteredProducts = products;
+    }
+
     ctx.body = {
       status: 'success',
-      data: result,
+      products: filteredProducts,
     };
   } catch (err) {
     console.log(err);
   }
 });
-router.put('/api/v1/:endpoint', async (ctx) => {
+router.put('/', async (ctx) => {
   try {
     console.log(ctx.request.body, 'ctx response');
     const { editOption, editValue, variants } = ctx.request.body;
@@ -82,3 +99,29 @@ const getUpdatedPrice = (editOption, currentPrice, editValue) => {
       return editValue;
   }
 };
+
+const filterByProduct = (products,filterOptions) => {
+  console.log(products,filterOptions,"filterByProduct");
+
+  const {filter,filterAction} = filterOptions;
+  const filteredProducts = products.filter((product) => {
+      return shouldAddproduct(product,filterOptions);
+  });
+  return filteredProducts;
+}
+
+const shouldAddproduct = (product,filterOptions) => {
+  const {filter,filterAction,filterValue} = filterOptions;
+  console.log(product,filter,filterAction,"should Add")
+  switch(filterAction){
+    case ">":
+      return product[`${filter}`] === filterValue;
+    case "!==":
+      return !(product[`${filter}`] === filterValue);
+    case "===":
+      return product[`${filter}`] === filterValue;
+    default:
+      return product[`${filter}`] === filterValue;
+  }
+}
+

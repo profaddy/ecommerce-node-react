@@ -6,7 +6,7 @@ const router = new Router({ prefix: '/api/v1/test' })
 
 router.get('/', async (ctx) => {
   try {
-    console.log("test")
+    console.log("test",ctx.query)
     const endpoint = ctx.params.endpoint;
     const response = await fetch(
       `https://${ctx.cookies.get('shopOrigin')}/admin/api/2020-04/products.json`,

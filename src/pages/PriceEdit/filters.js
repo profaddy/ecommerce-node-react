@@ -2,32 +2,32 @@ const filters = [
     {
       label: 'title',
       value: 'title',
-      type:'products'
+      type:'product'
     },
     {
       label: 'vendor',
       value: 'vendor',
-      type:'products'
+      type:'product'
     },
     {
       label: 'created_at',
       value: 'type',
-      type:'products'
+      type:'product'
     },
     {
       label: 'pusblished_at',
       value: 'type',
-      type:'products'
+      type:'product'
     },
     {
       label: 'price',
       value: 'price',
-      type:'variants'
+      type:'variant'
     },
     {
       label: 'description',
       value: 'description',
-      type:'products'
+      type:'product'
     },
   ];
   

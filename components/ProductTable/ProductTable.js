@@ -45,7 +45,7 @@ const ProductTable = (props) => {
                   return (
                     <div style={styles.rowWrap}>
                       <div style={styles.variantItem}>grey</div>
-                      <div style={styles.variantItem}>20</div>
+                  <div style={styles.variantItem}>{variant.price}</div>
                       <div style={styles.variantItem}>50</div>
                       <div style={styles.variantItem}>20kg</div>
                       <div style={styles.variantItem}>20</div>
