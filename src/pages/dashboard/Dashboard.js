@@ -1,5 +1,5 @@
 import React from 'react';
-import EditCard from '../../../components/EditCard/EditCard';
+import EditCard from '../components/EditCard/EditCard';
 import {editOptions} from "./EditOptions";
 import {styles} from "./styles";
 

@@ -1,41 +1,72 @@
 import React from 'react';
 import isEmpty from 'lodash/isEmpty';
 import filters from '../filters';
-
 import { Select, Card, Button, TextField } from '@shopify/polaris';
+
 const Step1 = (props) => {
   const { values, fetchProducts, formSubmit, setFormValues } = props;
   const getFilterOptions = () => {
-    switch (values.filter) {
-      case 'price':
-        return [
-          { label: 'of all variants equal to', value: '===' },
-          { label: 'of all variants less than', value: '>' },
-          { label: 'of all variants greater than', value: '<' },
-        ];
-      case 'description':
-        return [
-          { label: 'contains', value: '===' },
-          { label: 'does not contain', value: '!==' },
-          { label: 'is empty', value: '!' },
-        ];
-      case 'title':
-        return [
-          { label: 'contains', value: '===' },
-          { label: 'does not contain', value: '!==' },
-          { label: 'is empty', value: '!' },
-        ];
-      default:
-        return [
-            { label: 'contains', value: '===' },
-            { label: 'does not contain', value: '!==' },
-            { label: 'is empty', value: '!' },
+    const selectedFilter = filters.filter((item) => {
+      return item.value === values.filter;
+    })[0];
+    const { comparisonType, type } = selectedFilter;
+    if (type === 'product') {
+      switch (comparisonType) {
+        case 'string':
+          return [
+            { label: 'contains', value: 's===' },
+            { label: 'does not contain', value: 's!==' },
+            { label: 'is empty', value: 's!' },
           ];
+        case 'number':
+          return [
+                  { label: 'is equal to', value: 'n===' },
+                  { label: 'is not equal to', value:'n!=='},
+                  { label: 'is less than', value: 'n>' },
+                  { label: 'is greater than', value: 'n<' },
+                ];
+        case 'date':
+          return [
+            { label: 'is equal to', value: 'd===' },
+            {label: 'is not equal to', value:'d!=='},
+            { label: 'is less than', value: 'd>' },
+            { label: 'is greater than', value: 'd<' },
+          ];
+        default:
+          return [];
+      }
+    } else if (type === 'variant') {
+      switch (comparisonType) {
+        case 'string':
+          return [
+            { label: 'of all variants contains', value: 's===' },
+            { label: 'of all variants does not contain', value: 's!==' },
+            { label: 'of all variants is empty', value: 's!' },
+          ];
+        case 'number':
+          return [
+                  { label: 'of all variants is equal to', value: 'n===' },
+                  { label: 'of all variants is not equal to', value:'n!=='},
+                  { label: 'of all variants is less than', value: 'n>' },
+                  { label: 'of all variants is greater than', value: 'n<' },
+                ];
+        case 'date':
+          return [
+            { label: 'of all variants is equal to', value: 'd===' },
+            { label: 'of all variants is not equal to', value:'d!=='},
+            { label: 'of all variants is less than', value: 'd>' },
+            { label: 'of all variants is greater than', value: 'd<' },
+          ];
+        default:
+          return [];
+      }
+    } else {
+      return [];
     }
   };
   return (
     <div>
-    <div style={styles.step}>Step1: Filter Products</div>
+      <div style={styles.step}>Step1: Filter Products</div>
       <Card sectioned>
         <div style={{ display: 'flex' }}>
           <div style={styles.formItem}>
@@ -47,7 +78,6 @@ const Step1 = (props) => {
                 setFormValues({
                   ...values,
                   filter: value,
-                  filterAction: getFilterOptions(),
                 });
               }}
               value={values.filter}
@@ -80,9 +110,7 @@ const Step1 = (props) => {
             <Button
               submit
               primary
-              onClick={() => {
-                fetchProducts();
-              }}
+              onClick={() => fetchProducts()}
               disabled={false}
             >
               Apply
@@ -95,28 +123,12 @@ const Step1 = (props) => {
 };
 
 const styles = {
-  formContainer: {
-    display: 'flex',
-    width: '100%',
-  },
   formItem: {
     marginRight: 15,
     minWidth: 200,
   },
   step: {
     margin: 15,
-  },
-  editOptionWrapper: {
-    display: 'flex',
-    padding: 15,
-    flexDirection: 'column',
-  },
-  editOptionItem: {
-    marginBottom: 15,
-    width: '50%',
-  },
-  emptyState: {
-    padding: 15,
   },
 };
 export default Step1;

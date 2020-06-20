@@ -1,36 +1,38 @@
 'use strict';
 // import Router from 'koa-router';
 const Router = require('koa-router');
+const { isEmpty } = require('lodash');
 // const router = new Router();
-const router = new Router({ prefix: '/api/v1/products' })
+const router = new Router({ prefix: '/api/v1/products' });
 
 router.get('/', async (ctx) => {
   try {
-    console.log("products",ctx.query)
-    // const endpoint = ctx.params.endpoint;
-    const {filter,filterType,filterAction,filterValue} = ctx.query;
+    console.log('products', ctx.query);
+    const { filter, filterType, filterAction, filterValue } = ctx.query;
     const filterOptions = {
       filterValue,
       filterAction,
-      filter
-    }
+      filter,
+    };
 
     const response = await fetch(
-      `https://${ctx.cookies.get('shopOrigin')}/admin/api/2020-04/products.json`,
+      `https://${ctx.cookies.get(
+        'shopOrigin'
+      )}/admin/api/2020-04/products.json`,
       {
         headers: {
           'X-Shopify-Access-Token': ctx.cookies.get('accessToken'),
         },
       }
     );
-    const {products} = await response.json();
-    console.log(products,filterOptions,"main call");
+    const { products } = await response.json();
+    console.log(products, filterOptions, 'main call');
     let filteredProducts;
-    if(filterType === "product"){
-      filteredProducts = filterByProduct(products,filterOptions);
-    }else if(filterType === "variant"){
-      filteredProducts = filterByVariant(products,filterOptions);
-    }else{
+    if (filterType === 'product') {
+      filteredProducts = filterByProduct(products, filterOptions);
+    } else if (filterType === 'variant') {
+      filteredProducts = filterByVariant(products, filterOptions);
+    } else {
       filteredProducts = products;
     }
 
@@ -82,7 +84,7 @@ router.put('/', async (ctx) => {
     console.log(err);
   }
 });
-module.exports = router
+module.exports = router;
 
 //helpers
 const getUpdatedPrice = (editOption, currentPrice, editValue) => {
@@ -100,28 +102,50 @@ const getUpdatedPrice = (editOption, currentPrice, editValue) => {
   }
 };
 
-const filterByProduct = (products,filterOptions) => {
-  console.log(products,filterOptions,"filterByProduct");
+const filterByProduct = (products, filterOptions) => {
+  console.log(products, filterOptions, 'filterByProduct');
 
-  const {filter,filterAction} = filterOptions;
+  const { filter, filterAction } = filterOptions;
   const filteredProducts = products.filter((product) => {
-      return shouldAddproduct(product,filterOptions);
+    return shouldAdd(product, filterOptions);
   });
   return filteredProducts;
-}
+};
 
-const shouldAddproduct = (product,filterOptions) => {
-  const {filter,filterAction,filterValue} = filterOptions;
-  console.log(product,filter,filterAction,"should Add")
-  switch(filterAction){
-    case ">":
-      return product[`${filter}`] === filterValue;
-    case "!==":
-      return !(product[`${filter}`] === filterValue);
-    case "===":
-      return product[`${filter}`] === filterValue;
+const filterByVariant = (products, filterOptions) => {
+  console.log(products, filterOptions, 'filterByProduct');
+  const filteredProducts = products.reduce((acc, product) => {
+    const { variants } = product;
+    const filteredVariants = variants.filter((variant) =>
+      shouldAdd(variant, filterOptions)
+    );
+    console.log(filteredVariants, 'filteredVariants');
+    if (filteredVariants.length === variants.length) {
+      console.log('acc', acc, 'product', product);
+      acc.push(product);
+    }
+    return acc;
+  }, []);
+  console.log(filteredProducts, 'filteredProducts');
+  return filteredProducts;
+};
+
+const shouldAdd = (product, filterOptions) => {
+  const { filter, filterAction, filterValue } = filterOptions;
+  switch (filterAction) {
+    case 'n>':
+      return Number(product[`${filter}`]) === Number(filterValue);
+    case 'n!==':
+      return !(Number(product[`${filter}`]) === Number(filterValue));
+    case 'n===':
+      return Number(product[`${filter}`]) === Number(filterValue);
+    case 's===':
+      return product[`${filter}`].indexOf(filterValue) !== -1;
+    case 's!==':
+      return !(product[`${filter}`].indexOf(filterValue) !== -1);
+    case 's!':
+      return isEmpty(product[`${filter}`]);
     default:
-      return product[`${filter}`] === filterValue;
+      return false;
   }
-}
-
+};
