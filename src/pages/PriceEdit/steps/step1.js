@@ -66,7 +66,7 @@ const Step1 = (props) => {
   };
   return (
     <div>
-      <div style={styles.step}>Step1: Filter Products</div>
+      <div style={styles.step}>STEP1: Filter Products</div>
       <Card sectioned>
         <div style={{ display: 'flex' }}>
           <div style={styles.formItem}>
@@ -128,7 +128,7 @@ const styles = {
     minWidth: 200,
   },
   step: {
-    margin: 15,
+    margin: "10px auto",
   },
 };
 export default Step1;

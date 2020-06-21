@@ -66,7 +66,7 @@ const Step3 = (props) => {
   };
   return (
     <div>
-      <div style={styles.step}>STEP3(OPTIONAL) : SELECT WHAT VARIANTS TO EDIT</div>
+      <div style={styles.step}> STEP3(OPTIONAL) : Select Variants to edit</div>
       <Card sectioned>
         <div style={{ display: 'flex' }}>
           <div style={styles.formItem}>
@@ -128,7 +128,7 @@ const styles = {
     minWidth: 200,
   },
   step: {
-    margin: 15,
+    margin: "10px auto",
   },
 };
 export default Step3;

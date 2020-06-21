@@ -50,7 +50,7 @@ const Step4 = (props) => {
       };
   return (
     <div>
-      <div style={styles.step}>Step4: Choose How to Edit</div>
+      <div style={styles.step}>STEP4: Select what to Edit</div>
       <Card>
         <div style={styles.editOptionWrapper}>
           <div style={styles.editOptionItem}>
@@ -82,7 +82,7 @@ const styles = {
       minWidth: 200,
     },
     step: {
-      margin: 15,
+      margin: "10px auto",
     },
     editOptionWrapper: {
       display: 'flex',

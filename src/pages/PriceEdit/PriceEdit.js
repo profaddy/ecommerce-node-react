@@ -58,14 +58,15 @@ const PriceEdit = () => {
   };
 
   return (
-    <div>
-      <button
+      <div style={styles.pageWrapper}>
+      <div
+      style={styles.homeLink}
         onClick={() => {
           Router.push('/');
         }}
       >
-        Home
-      </button>
+        {"< Dashboard"}
+      </div>
       <div>
         <form onSubmit={onSubmit}>
           <Step1
@@ -88,14 +89,22 @@ const PriceEdit = () => {
           <Button onClick={() => setFormValues(initialFormValues)}>
             Reset
           </Button>
-          <Button onClick={() => updateSelectedProducts()} disabled={isEmpty(products)}>Update</Button>
+          <Button onClick={() => updateSelectedProducts()} disabled={isEmpty(products)}>Start Bulk Editing</Button>
+          <Button onClick={() => updateSelectedProducts()} disabled={true}>Schedule Bulk Editing</Button>
         </Card>
         <Card subdued sectioned title="Internal Form Values">
           <code>{JSON.stringify(values, null, 2)}</code>
         </Card>
       </div>
-    </div>
+      </div>
   );
 };
-
+const styles = {
+  pageWrapper:{
+    margin:20
+  },
+  homeLink:{
+    cursor:"pointer"
+  }
+}
 export default PriceEdit;
