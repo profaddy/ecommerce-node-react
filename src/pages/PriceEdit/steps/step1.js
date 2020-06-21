@@ -73,7 +73,7 @@ const Step1 = (props) => {
             <Select
               key={'filter'}
               name="filter"
-              options={filters}
+              options={filters.filter((item) => item.type === "product")}
               onChange={(value) => {
                 setFormValues({
                   ...values,

@@ -6,11 +6,14 @@ import { Card, Button } from '@shopify/polaris';
 import Step1 from './steps/step1.js';
 import Step2 from './steps/step2.js';
 import Step3 from './steps/step3.js';
+import Step4 from './steps/step4.js';
+import isEmpty  from 'lodash/isEmpty';
 
 const initialFormValues = {
-  filter: 'price',
+  filter: 'allProducts',
   filterAction: 'is',
   editOption: `changeToCustomValue`,
+  variantFilter: 'allVariants'
 };
 const PriceEdit = () => {
   const [values, setFormValues] = useState(initialFormValues);
@@ -24,7 +27,7 @@ const PriceEdit = () => {
     const { data } = await api.get(
       `products?filter=${filter}&filterType=${filterType}&filterAction=${filterAction}&filterValue=${filterValue}`
     );
-
+    
     setProducts(data.products);
   };
   const onSubmit = (e) => {
@@ -37,9 +40,15 @@ const PriceEdit = () => {
       console.log(item, 'item');
       return [...acc, ...item.variants];
     }, []);
-    const { editOption, editValue } = values;
+    const { editOption, editValue, variantFilter, variantFilterAction, variantFilterValue } = values;
+    const variantFilterOptions = {
+      filter:variantFilter,
+      filterAction:variantFilterAction,
+      filterValue:variantFilterValue
+    }
     const paylaod = {
       variants: variantsToBeUpdated,
+      variantFilterOptions,
       editOption,
       editValue,
     };
@@ -66,14 +75,20 @@ const PriceEdit = () => {
             setFormValues={setFormValues}
           />
           <Step2 products={products} />
-          <Step3 values={values} setFormValues={setFormValues} />
+          <Step3
+            values={values}
+            formSubmit={formSubmit}
+            setFormValues={setFormValues}
+          />
+          <Step4 values={values} setFormValues={setFormValues} />
+  
         </form>
         <br />
         <Card>
           <Button onClick={() => setFormValues(initialFormValues)}>
             Reset
           </Button>
-          <Button onClick={() => updateSelectedProducts()}>Update</Button>
+          <Button onClick={() => updateSelectedProducts()} disabled={isEmpty(products)}>Update</Button>
         </Card>
         <Card subdued sectioned title="Internal Form Values">
           <code>{JSON.stringify(values, null, 2)}</code>

@@ -28,7 +28,9 @@ router.get('/', async (ctx) => {
     const { products } = await response.json();
     console.log(products, filterOptions, 'main call');
     let filteredProducts;
-    if (filterType === 'product') {
+    if(filterOptions.filter === "allProducts"){
+      filteredProducts = products
+    }else if (filterType === 'product') {
       filteredProducts = filterByProduct(products, filterOptions);
     } else if (filterType === 'variant') {
       filteredProducts = filterByVariant(products, filterOptions);
@@ -47,7 +49,12 @@ router.get('/', async (ctx) => {
 router.put('/', async (ctx) => {
   try {
     console.log(ctx.request.body, 'ctx response');
-    const { editOption, editValue, variants } = ctx.request.body;
+    const { editOption, editValue, variants,variantFilterOptions } = ctx.request.body;
+    let filteredVariants = variants
+    if(!(isEmpty(variantFilterOptions.filter) || variantFilterOptions.filter === "allVariants")){
+       filteredVariants = variants.filter((variant) => shouldAdd(variant,variantFilterOptions));
+    }
+    console.log(filteredVariants,"filteredVariants");
     variants.forEach(async (variant) => {
       const updatedPrice = getUpdatedPrice(
         editOption,

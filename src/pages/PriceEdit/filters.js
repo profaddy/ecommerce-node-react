@@ -1,4 +1,16 @@
 const filters = [
+  {
+    label:"all variants",
+    value:"allVariants",
+    type:'variant',
+    comparisonType:'none'
+  },
+  {
+    label:"all products",
+    value:"allProducts",
+    type:'product',
+    comparisonType:'none'
+  },
     {
       label: 'title',
       value: 'title',

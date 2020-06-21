@@ -1,100 +1,134 @@
 import React from 'react';
-import { Card , Select, TextField} from '@shopify/polaris';
+import isEmpty from 'lodash/isEmpty';
+import filters from '../filters';
+import { Select, Card, Button, TextField } from '@shopify/polaris';
 
-const EditOptions = [
-    { label: 'Change price to', value: 'changeToCustomValue' },
-    { label: 'Adjust price by amount', value: 'addPriceByAmount' },
-    { label: 'Adjust price by percentage', value: 'addPriceByPercentage' },
-  ];
 const Step3 = (props) => {
-    const {values, setFormValues} = props;
-    const getContentBasedOnEditSelection = () => {
-        const editOption = { values };
-        switch (editOption) {
-          case 'changeToCustomValue':
-            return (
-              <TextField
-                name="editValue"
-                label={'Price'}
-                value={values.editValue}
-                onChange={(value) => setFormValues({ ...values, editValue: value })}
-              />
-            );
-          case 'addPriceByAmount':
-            return (
-              <TextField
-                name="editValue"
-                label={'Price in INR'}
-                value={values.editValue}
-                onChange={(value) => setFormValues({ ...values, editValue: value })}
-              />
-            );
-          case 'addPriceByPercentage':
-            return (
-              <TextField
-                name="editValue"
-                label={'Price in %'}
-                value={values.editValue}
-                onChange={(value) => setFormValues({ ...values, editValue: value })}
-              />
-            );
-          default:
-            return (
-              <TextField
-                name="editValue"
-                value={values.editValue}
-                onChange={(value) => setFormValues({ ...values, editValue: value })}
-              />
-            );
-        }
-      };
+  const { values, fetchProducts, formSubmit, setFormValues } = props;
+  const getFilterOptions = () => {
+    const selectedFilter = filters.filter((item) => {
+      return ( item.type === "variant" && item.value === values.variantFilter);
+    })[0];
+    const { comparisonType, type } = selectedFilter;
+    if (type === 'product') {
+      switch (comparisonType) {
+        case 'string':
+          return [
+            { label: 'contains', value: 's===' },
+            { label: 'does not contain', value: 's!==' },
+            { label: 'is empty', value: 's!' },
+          ];
+        case 'number':
+          return [
+                  { label: 'is equal to', value: 'n===' },
+                  { label: 'is not equal to', value:'n!=='},
+                  { label: 'is less than', value: 'n>' },
+                  { label: 'is greater than', value: 'n<' },
+                ];
+        case 'date':
+          return [
+            { label: 'is equal to', value: 'd===' },
+            {label: 'is not equal to', value:'d!=='},
+            { label: 'is less than', value: 'd>' },
+            { label: 'is greater than', value: 'd<' },
+          ];
+        default:
+          return [];
+      }
+    } else if (type === 'variant') {
+      switch (comparisonType) {
+        case 'string':
+          return [
+            { label: 'of all variants contains', value: 's===' },
+            { label: 'of all variants does not contain', value: 's!==' },
+            { label: 'of all variants is empty', value: 's!' },
+          ];
+        case 'number':
+          return [
+                  { label: 'of all variants is equal to', value: 'n===' },
+                  { label: 'of all variants is not equal to', value:'n!=='},
+                  { label: 'of all variants is less than', value: 'n>' },
+                  { label: 'of all variants is greater than', value: 'n<' },
+                ];
+        case 'date':
+          return [
+            { label: 'of all variants is equal to', value: 'd===' },
+            { label: 'of all variants is not equal to', value:'d!=='},
+            { label: 'of all variants is less than', value: 'd>' },
+            { label: 'of all variants is greater than', value: 'd<' },
+          ];
+        default:
+          return [];
+      }
+    } else {
+      return [];
+    }
+  };
   return (
     <div>
-      <div style={styles.step}>Step3: Choose How to Edit</div>
-      <Card>
-        <div style={styles.editOptionWrapper}>
-          <div style={styles.editOptionItem}>
+      <div style={styles.step}>STEP3(OPTIONAL) : SELECT WHAT VARIANTS TO EDIT</div>
+      <Card sectioned>
+        <div style={{ display: 'flex' }}>
+          <div style={styles.formItem}>
             <Select
-              key={'editOptions'}
-              name="editOption"
-              options={EditOptions}
+              key={'variantFilter'}
+              name="variantFilter"
+              options={filters.filter((item) => item.type === "variant")}
               onChange={(value) => {
-                setFormValues({ ...values, editOption: value });
+                setFormValues({
+                  ...values,
+                  variantFilter: value,
+                });
               }}
-              value={values.editOption}
+              value={values.variantFilter}
             />
           </div>
-          <div style={styles.editOptionItem}>
-            {getContentBasedOnEditSelection()}
+          <div style={styles.formItem}>
+            <Select
+              key={'variantFilterAction'}
+              name="variantFilterAction"
+              options={getFilterOptions()}
+              onChange={(value) => {
+                setFormValues({ ...values, variantFilterAction: value });
+              }}
+              value={values.variantFilterAction}
+            />
           </div>
+          <div style={styles.formItem}>
+            <TextField
+              name="variantFilterValue"
+              value={values.variantFilterValue}
+              onChange={(value) =>
+                setFormValues({ ...values, variantFilterValue: value })
+              }
+            />
+            {formSubmit === true && isEmpty(values.variantFilterValue) && (
+              <div style={{ color: 'red' }}>Please provide a value</div>
+            )}
+          </div>
+          {/* <div>
+            <Button
+              submit
+              primary
+              onClick={() => fetchProducts()}
+              disabled={false}
+            >
+              Apply
+            </Button>
+          </div> */}
         </div>
       </Card>
     </div>
   );
 };
+
 const styles = {
-    formContainer: {
-      display: 'flex',
-      width: '100%',
-    },
-    formItem: {
-      marginRight: 15,
-      minWidth: 200,
-    },
-    step: {
-      margin: 15,
-    },
-    editOptionWrapper: {
-      display: 'flex',
-      padding: 15,
-      flexDirection: 'column',
-    },
-    editOptionItem: {
-      marginBottom: 15,
-      width: '50%',
-    },
-    emptyState: {
-      padding: 15,
-    },
-  };
+  formItem: {
+    marginRight: 15,
+    minWidth: 200,
+  },
+  step: {
+    margin: 15,
+  },
+};
 export default Step3;
