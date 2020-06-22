@@ -7,7 +7,7 @@ const Step3 = (props) => {
   const { values, fetchProducts, formSubmit, setFormValues } = props;
   const getFilterOptions = () => {
     const selectedFilter = filters.filter((item) => {
-      return ( item.type === "variant" && item.value === values.variantFilter);
+      return item.type === 'variant' && item.value === values.variantFilter;
     })[0];
     const { comparisonType, type } = selectedFilter;
     if (type === 'product') {
@@ -20,15 +20,15 @@ const Step3 = (props) => {
           ];
         case 'number':
           return [
-                  { label: 'is equal to', value: 'n===' },
-                  { label: 'is not equal to', value:'n!=='},
-                  { label: 'is less than', value: 'n>' },
-                  { label: 'is greater than', value: 'n<' },
-                ];
+            { label: 'is equal to', value: 'n===' },
+            { label: 'is not equal to', value: 'n!==' },
+            { label: 'is less than', value: 'n>' },
+            { label: 'is greater than', value: 'n<' },
+          ];
         case 'date':
           return [
             { label: 'is equal to', value: 'd===' },
-            {label: 'is not equal to', value:'d!=='},
+            { label: 'is not equal to', value: 'd!==' },
             { label: 'is less than', value: 'd>' },
             { label: 'is greater than', value: 'd<' },
           ];
@@ -45,15 +45,15 @@ const Step3 = (props) => {
           ];
         case 'number':
           return [
-                  { label: 'of all variants is equal to', value: 'n===' },
-                  { label: 'of all variants is not equal to', value:'n!=='},
-                  { label: 'of all variants is less than', value: 'n>' },
-                  { label: 'of all variants is greater than', value: 'n<' },
-                ];
+            { label: 'of all variants is equal to', value: 'n===' },
+            { label: 'of all variants is not equal to', value: 'n!==' },
+            { label: 'of all variants is less than', value: 'n>' },
+            { label: 'of all variants is greater than', value: 'n<' },
+          ];
         case 'date':
           return [
             { label: 'of all variants is equal to', value: 'd===' },
-            { label: 'of all variants is not equal to', value:'d!=='},
+            { label: 'of all variants is not equal to', value: 'd!==' },
             { label: 'of all variants is less than', value: 'd>' },
             { label: 'of all variants is greater than', value: 'd<' },
           ];
@@ -73,7 +73,7 @@ const Step3 = (props) => {
             <Select
               key={'variantFilter'}
               name="variantFilter"
-              options={filters.filter((item) => item.type === "variant")}
+              options={filters.filter((item) => item.type === 'variant')}
               onChange={(value) => {
                 setFormValues({
                   ...values,
@@ -83,39 +83,33 @@ const Step3 = (props) => {
               value={values.variantFilter}
             />
           </div>
-          <div style={styles.formItem}>
-            <Select
-              key={'variantFilterAction'}
-              name="variantFilterAction"
-              options={getFilterOptions()}
-              onChange={(value) => {
-                setFormValues({ ...values, variantFilterAction: value });
-              }}
-              value={values.variantFilterAction}
-            />
-          </div>
-          <div style={styles.formItem}>
-            <TextField
-              name="variantFilterValue"
-              value={values.variantFilterValue}
-              onChange={(value) =>
-                setFormValues({ ...values, variantFilterValue: value })
-              }
-            />
-            {formSubmit === true && isEmpty(values.variantFilterValue) && (
-              <div style={{ color: 'red' }}>Please provide a value</div>
-            )}
-          </div>
-          {/* <div>
-            <Button
-              submit
-              primary
-              onClick={() => fetchProducts()}
-              disabled={false}
-            >
-              Apply
-            </Button>
-          </div> */}
+          {values['variantFilter'] !== 'allVariants' && (
+            <>
+              <div style={styles.formItem}>
+                <Select
+                  key={'variantFilterAction'}
+                  name="variantFilterAction"
+                  options={getFilterOptions()}
+                  onChange={(value) => {
+                    setFormValues({ ...values, variantFilterAction: value });
+                  }}
+                  value={values.variantFilterAction}
+                />
+              </div>
+              <div style={styles.formItem}>
+                <TextField
+                  name="variantFilterValue"
+                  value={values.variantFilterValue}
+                  onChange={(value) =>
+                    setFormValues({ ...values, variantFilterValue: value })
+                  }
+                />
+                {formSubmit === true && isEmpty(values.variantFilterValue) && (
+                  <div style={{ color: 'red' }}>Please provide a value</div>
+                )}
+              </div>
+            </>
+          )}
         </div>
       </Card>
     </div>
@@ -128,7 +122,7 @@ const styles = {
     minWidth: 200,
   },
   step: {
-    margin: "10px auto",
+    margin: '10px auto',
   },
 };
 export default Step3;

@@ -7,17 +7,19 @@ import Step1 from './steps/step1.js';
 import Step2 from './steps/step2.js';
 import Step3 from './steps/step3.js';
 import Step4 from './steps/step4.js';
-import isEmpty  from 'lodash/isEmpty';
+import isEmpty from 'lodash/isEmpty';
+import validator from "./validator.js";
 
 const initialFormValues = {
   filter: 'allProducts',
   filterAction: 'is',
   editOption: `changeToCustomValue`,
-  variantFilter: 'allVariants'
+  variantFilter: 'allVariants',
 };
 const PriceEdit = () => {
   const [values, setFormValues] = useState(initialFormValues);
   const [formSubmit, setFormSubmit] = useState(false);
+  const [formErrors, setFormErrors] = useState({});
   const [products, setProducts] = useState([]);
 
   const fetchProducts = async () => {
@@ -27,7 +29,7 @@ const PriceEdit = () => {
     const { data } = await api.get(
       `products?filter=${filter}&filterType=${filterType}&filterAction=${filterAction}&filterValue=${filterValue}`
     );
-    
+
     setProducts(data.products);
   };
   const onSubmit = (e) => {
@@ -35,37 +37,50 @@ const PriceEdit = () => {
     console.log('values', values);
   };
   const updateSelectedProducts = async () => {
-    setFormSubmit(true);
-    const variantsToBeUpdated = products.reduce((acc, item) => {
-      console.log(item, 'item');
-      return [...acc, ...item.variants];
-    }, []);
-    const { editOption, editValue, variantFilter, variantFilterAction, variantFilterValue } = values;
-    const variantFilterOptions = {
-      filter:variantFilter,
-      filterAction:variantFilterAction,
-      filterValue:variantFilterValue
+    // setFormSubmit(true);
+
+    const errors = validator(values);
+    console.log(errors)
+    if (isEmpty(errors)) {
+      const variantsToBeUpdated = products.reduce((acc, item) => {
+        console.log(item, 'item');
+        return [...acc, ...item.variants];
+      }, []);
+      const {
+        editOption,
+        editValue,
+        variantFilter,
+        variantFilterAction,
+        variantFilterValue,
+      } = values;
+      const variantFilterOptions = {
+        filter: variantFilter,
+        filterAction: variantFilterAction,
+        filterValue: variantFilterValue,
+      };
+      const paylaod = {
+        variants: variantsToBeUpdated,
+        variantFilterOptions,
+        editOption,
+        editValue,
+      };
+      const { data } = await api.put(`products`, paylaod);
+      // setFormSubmit(false);
+      fetchProducts();
+    } else {
+      setFormErrors(errors);
     }
-    const paylaod = {
-      variants: variantsToBeUpdated,
-      variantFilterOptions,
-      editOption,
-      editValue,
-    };
-    const { data } = await api.put(`products`, paylaod);
-    setFormSubmit(false);
-    fetchProducts();
   };
 
   return (
-      <div style={styles.pageWrapper}>
+    <div style={styles.pageWrapper}>
       <div
-      style={styles.homeLink}
+        style={styles.homeLink}
         onClick={() => {
           Router.push('/');
         }}
       >
-        {"< Dashboard"}
+        {'< Dashboard'}
       </div>
       <div>
         <form onSubmit={onSubmit}>
@@ -73,38 +88,50 @@ const PriceEdit = () => {
             fetchProducts={fetchProducts}
             values={values}
             formSubmit={formSubmit}
+            formErrors={formErrors}
             setFormValues={setFormValues}
           />
           <Step2 products={products} />
           <Step3
             values={values}
             formSubmit={formSubmit}
+            formErrors={formErrors}
             setFormValues={setFormValues}
           />
-          <Step4 values={values} setFormValues={setFormValues} />
-  
+          <Step4
+            values={values}
+            formErrors={formErrors}
+            setFormValues={setFormValues}
+          />
         </form>
         <br />
         <Card>
           <Button onClick={() => setFormValues(initialFormValues)}>
             Reset
           </Button>
-          <Button onClick={() => updateSelectedProducts()} disabled={isEmpty(products)}>Start Bulk Editing</Button>
-          <Button onClick={() => updateSelectedProducts()} disabled={true}>Schedule Bulk Editing</Button>
+          <Button
+            onClick={() => updateSelectedProducts()}
+            disabled={isEmpty(products)}
+          >
+            Start Bulk Editing
+          </Button>
+          <Button onClick={() => updateSelectedProducts()} disabled={true}>
+            Schedule Bulk Editing
+          </Button>
         </Card>
         <Card subdued sectioned title="Internal Form Values">
           <code>{JSON.stringify(values, null, 2)}</code>
         </Card>
       </div>
-      </div>
+    </div>
   );
 };
 const styles = {
-  pageWrapper:{
-    margin:20
+  pageWrapper: {
+    margin: 20,
   },
-  homeLink:{
-    cursor:"pointer"
-  }
-}
+  homeLink: {
+    cursor: 'pointer',
+  },
+};
 export default PriceEdit;

@@ -7,7 +7,7 @@ const EditOptions = [
     { label: 'Adjust price by percentage', value: 'addPriceByPercentage' },
   ];
 const Step4 = (props) => {
-    const {values, setFormValues} = props;
+    const {values, setFormValues, formErrors} = props;
     const getContentBasedOnEditSelection = () => {
         const editOption = { values };
         switch (editOption) {
@@ -63,9 +63,11 @@ const Step4 = (props) => {
               }}
               value={values.editOption}
             />
+            {formErrors && formErrors["editOption"] && <>{formErrors["editOption"]}</>}
           </div>
           <div style={styles.editOptionItem}>
             {getContentBasedOnEditSelection()}
+            {formErrors && formErrors["editValue"] && <div style={styles.error}>{formErrors["editValue"]}</div>}
           </div>
         </div>
       </Card>
@@ -83,6 +85,10 @@ const styles = {
     },
     step: {
       margin: "10px auto",
+    },
+    error:{
+      color:"red",
+      marginTop:10
     },
     editOptionWrapper: {
       display: 'flex',

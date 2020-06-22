@@ -83,6 +83,9 @@ const Step1 = (props) => {
               value={values.filter}
             />
           </div>
+          {values.filter !== "allProducts" && 
+          <>
+        
           <div style={styles.formItem}>
             <Select
               key={'filter'}
@@ -106,6 +109,8 @@ const Step1 = (props) => {
               <div style={{ color: 'red' }}>Please provide a value</div>
             )}
           </div>
+          </>
+}
           <div>
             <Button
               submit
