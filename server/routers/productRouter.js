@@ -7,7 +7,6 @@ const router = new Router({ prefix: '/api/v1/products' });
 
 router.get('/', async (ctx) => {
   try {
-    console.log('products', ctx.query);
     const { filter, filterType, filterAction, filterValue } = ctx.query;
     const filterOptions = {
       filterValue,
@@ -25,36 +24,56 @@ router.get('/', async (ctx) => {
         },
       }
     );
-    const { products } = await response.json();
+    const jsonResponse = await response.json();
+    if (response.status !== 200) {
+      throw { status: response.status, msg: response.statusText };
+    }
+    const { products } = jsonResponse;
     console.log(products, filterOptions, 'main call');
     let filteredProducts;
-    if(filterOptions.filter === "allProducts"){
-      filteredProducts = products
-    }else if (filterType === 'product') {
+    if (filterOptions.filter === 'allProducts') {
+      filteredProducts = products;
+    } else if (filterType === 'product') {
       filteredProducts = filterByProduct(products, filterOptions);
     } else if (filterType === 'variant') {
       filteredProducts = filterByVariant(products, filterOptions);
     } else {
       filteredProducts = products;
     }
-
+    ctx.status = response.status;
     ctx.body = {
-      status: 'success',
+      status: true,
       products: filteredProducts,
     };
   } catch (err) {
-    console.log(err);
+    console.log(err, 'error');
+    ctx.status = err.status;
+    ctx.body = {
+      status: false,
+      msg: err.msg,
+    };
   }
 });
 router.put('/', async (ctx) => {
   try {
     console.log(ctx.request.body, 'ctx response');
-    const { editOption, editValue, variants,variantFilterOptions } = ctx.request.body;
-    let filteredVariants = variants
-    if(!(isEmpty(variantFilterOptions.filter) || variantFilterOptions.filter === "allVariants")){
-       filteredVariants = variants.filter((variant) => shouldAdd(variant,variantFilterOptions));
+    const {
+      editOption,
+      editValue,
+      variants,
+      variantFilterOptions,
+    } = ctx.request.body;
+    let filteredVariants = variants;
+    if (
+      !(
+        isEmpty(variantFilterOptions.filter) ||
+        variantFilterOptions.filter === 'allVariants'
+      )
+    ) {
+      filteredVariants = variants.filter((variant) =>
+        shouldAdd(variant, variantFilterOptions)
+      );
     }
-    console.log(filteredVariants,"filteredVariants");
     variants.forEach(async (variant) => {
       const updatedPrice = getUpdatedPrice(
         editOption,
@@ -75,20 +94,39 @@ router.put('/', async (ctx) => {
         headers: {
           'Content-type': 'application/json; charset=UTF-8', // Indicates the content
           'X-Shopify-Access-Token': ctx.cookies.get('accessToken'),
+
         },
         method: 'put',
         body: JSON.stringify(payload),
       });
+      let errors = [];
       const resp = await response.json();
+      console.log(response);
+      if (response.status !== 200) {
+        errors.push({
+          status: response.status,
+          msg: response.statusText,
+          data: variant,
+        });
+      }
       console.log(`reuqest completed for ${variant.title}`, resp);
     });
+    if (!isEmpty(errors)) {
+      throw (errors);
+    }
     const result = [];
+    ctx.status = response.status;
     ctx.body = {
-      status: 'success',
+      status: true,
       data: result,
     };
   } catch (err) {
     console.log(err);
+    ctx.status = 400;
+    ctx.body = {
+      status: false,
+      errors: err,
+    };
   }
 });
 module.exports = router;

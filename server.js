@@ -49,7 +49,11 @@ app.prepare().then(() => {
     })
   );
   server.use(verifyRequest());
-  server.use(bodyParser());
+  server.use(bodyParser({
+    detectJSON: function (ctx) {
+      return /\.json$/i.test(ctx.path);
+    }
+  }));
   server.use(productRouter.routes());
   server.use(productRouter.allowedMethods());
   server.use(testRouter.routes());

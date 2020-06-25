@@ -10,27 +10,46 @@ import Step4 from './steps/step4.js';
 import isEmpty from 'lodash/isEmpty';
 import validator from "./validator.js";
 
+import ToastWrapper from '../components/ToastWrapper/ToastWrapper.js';
+
 const initialFormValues = {
   filter: 'allProducts',
   filterAction: 'is',
   editOption: `changeToCustomValue`,
   variantFilter: 'allVariants',
 };
+const defaultToastOptions = {
+  active:false,
+  message:"",
+  error:false
+}
 const PriceEdit = () => {
   const [values, setFormValues] = useState(initialFormValues);
   const [formSubmit, setFormSubmit] = useState(false);
   const [formErrors, setFormErrors] = useState({});
   const [products, setProducts] = useState([]);
+  const [toast,setToast] = useState(defaultToastOptions)
 
   const fetchProducts = async () => {
+    try{
     const filterType = filters.filter((item) => item.value === values.filter)[0]
       .type;
     const { filter, filterAction, filterValue } = values;
     const { data } = await api.get(
       `products?filter=${filter}&filterType=${filterType}&filterAction=${filterAction}&filterValue=${filterValue}`
     );
-
+    if(data.status === false){
+      throw("test")
+    }
+    setToast({active:true,message:`products fetched successfully`,error:false})
     setProducts(data.products);
+    }catch(error){
+      // console.log("data",error.response.statusText,"x",error.responseText);
+      setToast({active:true,message:`${error.response.statusText}`,error:true})
+      // console.log(error.response,error.response.status,error.response,msg);
+      // console.log(error.data,error.data.error)
+      // console.log(error.msg,error.status,"error while fetching products");
+    }
   };
   const onSubmit = (e) => {
     e.preventDefault();
@@ -123,6 +142,7 @@ const PriceEdit = () => {
           <code>{JSON.stringify(values, null, 2)}</code>
         </Card>
       </div>
+      <ToastWrapper active={toast.active} message={toast.message} error= {toast.error} onDismiss={() => setToast({defaultToastOptions})}/>
     </div>
   );
 };

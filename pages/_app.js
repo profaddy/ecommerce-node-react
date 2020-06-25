@@ -19,7 +19,7 @@ class MyApp extends App {
           <meta charSet="utf-8" />
         </Head>
         <Provider config={config} >
-          <AppProvider i18n={translations}>
+          <AppProvider i18n={translations} config={config} >
               <CookiesProvider>
               <Component {...pageProps} config={config}/>
               </CookiesProvider>
