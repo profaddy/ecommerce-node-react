@@ -2,8 +2,9 @@
 // import Router from 'koa-router';
 const Router = require('koa-router');
 const { isEmpty } = require('lodash');
-// const router = new Router();
+const mongoose = require("mongoose");
 const router = new Router({ prefix: '/api/v1/products' });
+const Shop = require('../models/Shops.js')
 
 router.get('/', async (ctx) => {
   try {
@@ -14,13 +15,14 @@ router.get('/', async (ctx) => {
       filter,
     };
 
+    const shopDetails = await Shop.find({shopOrigin:ctx.cookies.get('shopOrigin')}).exec();
     const response = await fetch(
       `https://${ctx.cookies.get(
         'shopOrigin'
       )}/admin/api/2020-04/products.json`,
       {
         headers: {
-          'X-Shopify-Access-Token': ctx.cookies.get('accessToken'),
+          'X-Shopify-Access-Token': shopDetails[0].accessToken,
         },
       }
     );

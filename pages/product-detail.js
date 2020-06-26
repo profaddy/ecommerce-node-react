@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import Router from 'next/router';
-import EditCard from "../components/EditCard/EditCard";
+import EditCard from "../src/pages/components/EditCard/EditCard.js";
 
 class about extends Component {
     render() {
