@@ -88,7 +88,7 @@ const styles = {
     flex: 1,
     marginBottom: 10,
     marginRight: 10,
-    overflow: 'hidden',
+    overflow: 'auto',
     // width:100,
   },
   variantItem: {

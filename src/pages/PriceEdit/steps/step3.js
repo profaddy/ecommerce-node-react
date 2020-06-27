@@ -4,10 +4,12 @@ import filters from '../filters';
 import { Select, Card, Button, TextField } from '@shopify/polaris';
 
 const Step3 = (props) => {
-  const { values, fetchProducts, formSubmit, setFormValues } = props;
-  const getFilterOptions = () => {
+  const { values, formSubmit, setFormValues } = props;
+  const getFilterOptions = (value) => {
+    const filterValue = isEmpty(value) ? values.variantFilter : value
+
     const selectedFilter = filters.filter((item) => {
-      return item.type === 'variant' && item.value === values.variantFilter;
+      return item.type === 'variant' && item.value === filterValue;
     })[0];
     const { comparisonType, type } = selectedFilter;
     if (type === 'product') {
@@ -78,6 +80,7 @@ const Step3 = (props) => {
                 setFormValues({
                   ...values,
                   variantFilter: value,
+                  variantFilterAction:getFilterOptions(value)[0].value
                 });
               }}
               value={values.variantFilter}
@@ -87,7 +90,7 @@ const Step3 = (props) => {
             <>
               <div style={styles.formItem}>
                 <Select
-                  key={'variantFilterAction'}
+                  key={'variantFilter'}
                   name="variantFilterAction"
                   options={getFilterOptions()}
                   onChange={(value) => {

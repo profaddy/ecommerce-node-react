@@ -5,9 +5,12 @@ import { Select, Card, Button, TextField } from '@shopify/polaris';
 
 const Step1 = (props) => {
   const { values, fetchProducts, formSubmit, setFormValues } = props;
-  const getFilterOptions = () => {
+  const getFilterOptions = (value) => {
+    console.log(value,"value");
+    console.log(values.filter,"filter value")
+    const filterValue = isEmpty(value) ? values.filter : value
     const selectedFilter = filters.filter((item) => {
-      return item.value === values.filter;
+      return item.value === filterValue;
     })[0];
     const { comparisonType, type } = selectedFilter;
     if (type === 'product') {
@@ -73,11 +76,12 @@ const Step1 = (props) => {
             <Select
               key={'filter'}
               name="filter"
-              options={filters.filter((item) => item.type === "product")}
+              options={filters}
               onChange={(value) => {
                 setFormValues({
                   ...values,
                   filter: value,
+                  filterAction:getFilterOptions(value)[0].value
                 });
               }}
               value={values.filter}

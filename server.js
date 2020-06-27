@@ -34,7 +34,7 @@ const connectMongod = async () => {
 };
 connectMongod();
 
-mongoose.connection.on('error', (err) => {
+mongoose.connection.on('error', (error) => {
   console.log(error, 'mongodb error>>>>>>>>>>');
 });
 
