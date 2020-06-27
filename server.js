@@ -19,9 +19,6 @@ const testRouter = require('./server/routers/testRouter');
 const Shop = require('./server/models/Shops.js');
 const { isEmpty } = require('lodash');
 
-// mongoose.connect(`mongodb://localhost:27017/?readPreference=primary&appname=MongoDB%20Compass%20Community&ssl=false`,
-//   { useUnifiedTopology: true, useNewUrlParser: true },
-// )
 const connectMongod = async () => {
   try {
     await mongoose.connect(
@@ -71,21 +68,12 @@ app.prepare().then(() => {
                   updated_at: new Date(),
               }
           });
-            // shopDetails.accessToken = accessToken;
-            // await shopDetails.save();
-            // await shopDetails.updateOne({shopOrigin: shop},{accessToken:accessToken});
-            // await shopDetails.save();
             console.log("shopdetails updated successfully");
           }
         } catch (error) {
           console.log(error,"error while updating accessstoken")
         }
         ctx.cookies.set('shopOrigin', shop, {
-          httpOnly: false,
-          secure: true,
-          sameSite: 'none',
-        });
-        ctx.cookies.set('accessToken', accessToken, {
           httpOnly: false,
           secure: true,
           sameSite: 'none',
