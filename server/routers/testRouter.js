@@ -2,11 +2,11 @@
 // import Router from 'koa-router';
 const Router = require('koa-router');
 // const router = new Router();
-const router = new Router({ prefix: '/api/v1/test' })
+const router = new Router({ prefix: '/auth' })
 
 router.get('/', async (ctx) => {
   try {
-    console.log("test",ctx.query)
+    console.log("auth test",ctx,ctx.query)
     const endpoint = ctx.params.endpoint;
     const response = await fetch(
       `https://${ctx.cookies.get('shopOrigin')}/admin/api/2020-04/products.json`,
