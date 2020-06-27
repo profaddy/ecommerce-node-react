@@ -1,5 +1,6 @@
 const asyncForEach = require('../../utils/asyncForEach.js');
 const isEmpty = require('lodash/isEmpty');
+const Shop = require('../../models/Shops.js');
 
 const updateProduts = async (ctx) => {
   try {
@@ -9,7 +10,10 @@ const updateProduts = async (ctx) => {
       variants,
       variantFilterOptions,
     } = ctx.request.body;
-
+    const shopOrigin = ctx.session.shop;
+    const shopDetails = await Shop.find({
+      shopOrigin: shopOrigin,
+    }).exec();
     let filteredVariants = variants;
     if (
       !(
@@ -29,9 +33,7 @@ const updateProduts = async (ctx) => {
           Number(variant.price),
           Number(editValue)
         );
-        const url = `https://${ctx.cookies.get(
-          'shopOrigin'
-        )}/admin/api/2020-04/variants/${variant.id}.json`;
+        const url = `https://${shopOrigin}/admin/api/2020-04/variants/${variant.id}.json`;
         const payload = {
           variant: {
             id: variant.id,
@@ -41,13 +43,15 @@ const updateProduts = async (ctx) => {
         const response = await fetch(url, {
           headers: {
             'Content-type': 'application/json; charset=UTF-8', // Indicates the content
-            'X-Shopify-Access-Token': ctx.cookies.get('accessToken'),
+            'X-Shopify-Access-Token': shopDetails[0].accessToken,
           },
           method: 'put',
           body: JSON.stringify(payload),
         });
         let errors = [];
-        const resp = await response.json();
+        
+        // const resp = await response.json();
+        // console.log(response.status);
         if (response.status !== 200) {
           errors.push({
             status: response.status,
@@ -55,13 +59,13 @@ const updateProduts = async (ctx) => {
             data: variant,
           });
         }
-        console.log(`reuqest completed for ${variant.title}`);
+        console.log(`reuqest completed for ${variant.title}`,"errors",errors);
       });
     }
     updateFiltreedVariants();
-    if (!isEmpty(errors)) {
-      throw errors;
-    }
+    // if (!isEmpty(errors)) {
+    //   throw errors;
+    // }
     const result = [];
     ctx.status = response.status;
     ctx.body = {
@@ -69,10 +73,11 @@ const updateProduts = async (ctx) => {
       data: result,
     };
   } catch (err) {
+      console.log(err,"err")
     ctx.status = 400;
     ctx.body = {
       status: false,
-      errors: err,
+      errors: err.msg,
     };
   }
 };

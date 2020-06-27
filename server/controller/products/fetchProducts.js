@@ -9,14 +9,12 @@ const fetchProducts = async (ctx) => {
       filterAction,
       filter,
     };
-
+    const shopOrigin = ctx.session.shop;
     const shopDetails = await Shop.find({
-      shopOrigin: ctx.cookies.get('shopOrigin'),
+      shopOrigin: shopOrigin,
     }).exec();
     const response = await fetch(
-      `https://${ctx.cookies.get(
-        'shopOrigin'
-      )}/admin/api/2020-04/products.json`,
+      `https://${shopOrigin}/admin/api/2020-04/products.json`,
       {
         headers: {
           'X-Shopify-Access-Token': shopDetails[0].accessToken,
