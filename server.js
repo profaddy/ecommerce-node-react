@@ -10,7 +10,7 @@ const { verifyRequest } = require('@shopify/koa-shopify-auth');
 const session = require('koa-session');
 const mongoose = require('mongoose');
 
-const port = parseInt(process.env.PORT, 10) || 3001;
+const port = parseInt(process.env.PORT, 10) || 3000;
 const dev = process.env.NODE_ENV !== 'production';
 const app = next({ dev });
 const handle = app.getRequestHandler();
@@ -18,7 +18,21 @@ const productRouter = require('./server/routers/productRouter');
 const testRouter = require('./server/routers/testRouter');
 const Shop = require('./server/models/Shops.js');
 const { isEmpty } = require('lodash');
+var fs = require('fs');
+var https = require('https');
+var privateKey  = fs.readFileSync('/etc/letsencrypt/live/react.vowelweb.com/privkey.pem', 'utf8');
+var certificate = fs.readFileSync('/etc/letsencrypt/live/react.vowelweb.com/fullchain.pem', 'utf8');
 
+const config = {
+https: {
+options: {
+key: privateKey,
+cert: certificate,
+},
+
+},
+
+};
 const connectMongod = async () => {
   try {
     await mongoose.connect(
@@ -101,8 +115,19 @@ app.prepare().then(() => {
     ctx.res.statusCode = 200;
     return;
   });
-  server.use(cors());
-  server.listen(port, () => {
-    console.log(`> Ready on http://localhost:${port}`);
-  });
+  server.use(cors())
+  const serverCallback = server.callback();
+
+const httpsServer = https.createServer(config.https.options, serverCallback);
+  httpsServer.listen(port, function(err) {
+      console.log(`> Ready on http://localhost:${port}`);
+if (!!err) {
+
+console.error('HTTPS server FAIL: ', err, (err && err.stack));
+
+}
+})
+  // server.listen(port, () => {
+  //   console.log(`> Ready on http://localhost:${port}`);
+  // });
 });
