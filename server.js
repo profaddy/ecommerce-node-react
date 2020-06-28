@@ -10,7 +10,7 @@ const { verifyRequest } = require('@shopify/koa-shopify-auth');
 const session = require('koa-session');
 const mongoose = require('mongoose');
 
-const port = parseInt(process.env.PORT, 10) || 3000;
+const port = parseInt(process.env.PORT, 10) || 3001;
 const dev = process.env.NODE_ENV !== 'production';
 const app = next({ dev });
 const handle = app.getRequestHandler();
@@ -18,21 +18,9 @@ const productRouter = require('./server/routers/productRouter');
 const testRouter = require('./server/routers/testRouter');
 const Shop = require('./server/models/Shops.js');
 const { isEmpty } = require('lodash');
-var fs = require('fs');
-var https = require('https');
-var privateKey  = fs.readFileSync('/etc/letsencrypt/live/react.vowelweb.com/privkey.pem', 'utf8');
-var certificate = fs.readFileSync('/etc/letsencrypt/live/react.vowelweb.com/fullchain.pem', 'utf8');
+const fs = require('fs');
+const https = require('https');
 
-const config = {
-https: {
-options: {
-key: privateKey,
-cert: certificate,
-},
-
-},
-
-};
 const connectMongod = async () => {
   try {
     await mongoose.connect(
@@ -65,27 +53,30 @@ app.prepare().then(() => {
         const { shop, accessToken } = ctx.session;
         try {
           const shopDetails = await Shop.findOne({ shopOrigin: shop }).exec();
-          console.log(shopDetails,shopDetails);
+          console.log(shopDetails, shopDetails);
           if (isEmpty(shopDetails)) {
             const newShop = new Shop({
               _id: new mongoose.Types.ObjectId(),
               shopOrigin: shop,
               accessToken: accessToken,
               created_at: new Date(),
-              updated_at:new Date()
+              updated_at: new Date(),
             });
             await newShop.save();
-          }else{
-            await Shop.updateOne({ shopOrigin: shop }, {
-              $set: {
+          } else {
+            await Shop.updateOne(
+              { shopOrigin: shop },
+              {
+                $set: {
                   accessToken: accessToken,
                   updated_at: new Date(),
+                },
               }
-          });
-            console.log("shopdetails updated successfully");
+            );
+            console.log('shopdetails updated successfully');
           }
         } catch (error) {
-          console.log(error,"error while updating accessstoken")
+          console.log(error, 'error while updating accessstoken');
         }
         ctx.cookies.set('shopOrigin', shop, {
           httpOnly: false,
@@ -115,19 +106,39 @@ app.prepare().then(() => {
     ctx.res.statusCode = 200;
     return;
   });
-  server.use(cors())
+  server.use(cors());
   const serverCallback = server.callback();
-
-const httpsServer = https.createServer(config.https.options, serverCallback);
-  httpsServer.listen(port, function(err) {
-      console.log(`> Ready on http://localhost:${port}`);
-if (!!err) {
-
-console.error('HTTPS server FAIL: ', err, (err && err.stack));
-
-}
-})
-  // server.listen(port, () => {
-  //   console.log(`> Ready on http://localhost:${port}`);
-  // });
+  if (process.env.NODE_ENV === 'production') {
+    var privateKey = fs.readFileSync(
+      '/etc/letsencrypt/live/react.vowelweb.com/privkey.pem',
+      'utf8'
+    );
+    var certificate = fs.readFileSync(
+      '/etc/letsencrypt/live/react.vowelweb.com/fullchain.pem',
+      'utf8'
+    );
+  
+    const config = {
+      https: {
+        options: {
+          key: privateKey,
+          cert: certificate,
+        },
+      },
+    };
+    const httpsServer = https.createServer(
+      config.https.options,
+      serverCallback
+    );
+    httpsServer.listen(port, function (err) {
+      console.log(`> Ready on production http://localhost:${port}`);
+      if (!!err) {
+        console.error('HTTPS server FAIL: ', err, err && err.stack);
+      }
+    });
+  } else {
+    server.listen(port, () => {
+      console.log(`> Ready on development http://localhost:${port}`);
+    });
+  }
 });
