@@ -1,6 +1,9 @@
 const asyncForEach = require('../../utils/asyncForEach.js');
 const isEmpty = require('lodash/isEmpty');
 const Shop = require('../../models/Shops.js');
+const QTask = require('../../models/queuedTasks.js');
+const CTask =require('../../models/CompletedTasks.js');
+const mongoose = require('mongoose');
 
 const updateProduts = async (ctx) => {
   try {
@@ -25,9 +28,27 @@ const updateProduts = async (ctx) => {
         shouldAdd(variant, variantFilterOptions)
       );
     }
+    let response = {};
+    let errors = [];
+    const queuedTasks = new QTask({
+      _id: new mongoose.Types.ObjectId(),
+      shopOrigin: ctx.session.shop,
+      type:"price",
+      editOption: editOption,
+      editValue:editValue,
+      variantFilterOptions:variantFilterOptions,
+      variants:filteredVariants,
+      status:"success",
+      created_at: new Date(),
+      updated_at: new Date()   
+    });
+    await queuedTasks.save();
+    const variantList =  await QTask.findOne({
+      shopOrigin: shopOrigin,
+      _id:queuedTasks._id
+    }).exec();
     async function updateFiltreedVariants() {
-      await asyncForEach(filteredVariants, async (variant) => {
-        console.log(variant.title, 'title initial');
+      await asyncForEach(variantList.variants, async (variant) => {
         const updatedPrice = getUpdatedPrice(
           editOption,
           Number(variant.price),
@@ -40,7 +61,7 @@ const updateProduts = async (ctx) => {
             price: `${updatedPrice}`,
           },
         };
-        const response = await fetch(url, {
+         response = await fetch(url, {
           headers: {
             'Content-type': 'application/json; charset=UTF-8', // Indicates the content
             'X-Shopify-Access-Token': shopDetails[0].accessToken,
@@ -48,10 +69,7 @@ const updateProduts = async (ctx) => {
           method: 'put',
           body: JSON.stringify(payload),
         });
-        let errors = [];
         
-        // const resp = await response.json();
-        // console.log(response.status);
         if (response.status !== 200) {
           errors.push({
             status: response.status,
@@ -59,21 +77,41 @@ const updateProduts = async (ctx) => {
             data: variant,
           });
         }
-        console.log(`reuqest completed for ${variant.title}`,"errors",errors);
+        const completedTasks = new CTask({
+          _id: new mongoose.Types.ObjectId(),
+          queueId:queuedTasks._id,
+          shopOrigin: ctx.session.shop,
+          type:"price",
+          editOption: editOption,
+          editValue:editValue,
+          variantFilterOptions:variantFilterOptions,
+          variant:variant,
+          status:response.status,
+          status:response.statusText,
+          created_at: new Date(),
+          updated_at: new Date()   
+        });
+        await completedTasks.save();
       });
+      await QTask.updateOne({ shopOrigin:shopOrigin,_id:queuedTasks._id }, {
+        $set: {
+            status:"completed",
+            updated_at: new Date()
+        }
+    });
     }
-    updateFiltreedVariants();
-    // if (!isEmpty(errors)) {
-    //   throw errors;
-    // }
+    await updateFiltreedVariants();
+    if (!isEmpty(errors)) {
+      throw errors;
+    }
     const result = [];
-    ctx.status = response.status;
+    ctx.status = 200;
     ctx.body = {
       status: true,
       data: result,
     };
   } catch (err) {
-      console.log(err,"err")
+    console.log(err,"err")
     ctx.status = 400;
     ctx.body = {
       status: false,
