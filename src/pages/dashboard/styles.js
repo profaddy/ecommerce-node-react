@@ -3,13 +3,13 @@ export const styles = {
         margin:20
     },
     header:{
-        borderBottom: "1px solid black",
-    padding: "20px 0px"
+      borderBottom: "1px solid black",
+      padding: "20px 0px"
     },
   eidtCardContainer: {
     display: 'flex',
     flexWrap: 'wrap',
-    justifyContent:"center",
+    justifyContent:"flex-start",
   },
   editCardItem: {
     margin: '15px 15px 15px 0px',

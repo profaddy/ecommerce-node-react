@@ -29,10 +29,12 @@ const PriceEdit = () => {
   const [formSubmit, setFormSubmit] = useState(false);
   const [formErrors, setFormErrors] = useState({});
   const [products, setProducts] = useState([]);
-  const [toast,setToast] = useState(defaultToastOptions)
+  const [toast,setToast] = useState(defaultToastOptions);
+  const [productState,setProductState] = useState("empty")
 
   const fetchProducts = async () => {
     try{
+      setProductState("loading");
     const filterType = filters.filter((item) => item.value === values.filter)[0]
       .type;
     const { filter, filterAction, filterValue } = values;
@@ -44,7 +46,9 @@ const PriceEdit = () => {
     }
     setToast({active:true,message:`products fetched successfully`,error:false})
     setProducts(data.products);
+    setProductState("success");
     }catch(error){
+      setProductState("error");
       setToast({active:true,message:`${error.response.statusText}`,error:true})
     }
   };
@@ -107,7 +111,7 @@ const PriceEdit = () => {
             formErrors={formErrors}
             setFormValues={setFormValues}
           />
-          <Step2 products={products} />
+          <Step2 products={products} productState={productState}/>
           <Step3
             values={values}
             formSubmit={formSubmit}
@@ -131,9 +135,9 @@ const PriceEdit = () => {
           >
             Start Bulk Editing
           </Button>
-          <Button onClick={() => updateSelectedProducts()} disabled={true}>
+          {/* <Button onClick={() => updateSelectedProducts()} disabled={true}>
             Schedule Bulk Editing
-          </Button>
+          </Button> */}
         </Card>
         <Card subdued sectioned title="Internal Form Values">
           <code>{JSON.stringify(values, null, 2)}</code>

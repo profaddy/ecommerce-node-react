@@ -1,5 +1,6 @@
 const { isEmpty } = require('lodash');
 const Shop = require('../../models/Shops.js');
+const moment = require('moment');
 
 const fetchProducts = async (ctx) => {
   try {
@@ -89,7 +90,14 @@ const shouldAdd = (product, filterOptions) => {
     case 's!==':
       return !(product[`${filter}`].indexOf(filterValue) !== -1);
     case 's!':
-      return isEmpty(product[`${filter}`]);
+    case 'd===':
+        const isStartDateLesser = moment
+          .utc(product[`${filter}`])
+          .isAfter(moment(filter.start));
+        const isEndDateGreater = moment
+          .utc(product[`${filter}`])
+          .isBefore(moment(filter.end));
+        return isStartDateLesser && isEndDateGreater;
     default:
       return false;
   }

@@ -108,7 +108,7 @@ const updateProduts = async (ctx) => {
     ctx.status = 200;
     ctx.body = {
       status: true,
-      data: result,
+      data: {id:queuedTasks._id}
     };
   } catch (err) {
     console.log(err,"err")
