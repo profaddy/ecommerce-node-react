@@ -2,7 +2,6 @@ const Task = require('../../models/CompletedTasks.js');
 
 const fetchTasks = async (ctx) => {
   try {
-
     console.log("queueId",ctx.params.queueId);
     const shopOrigin = ctx.session.shop;
     const TaskDetails = await Task.find({

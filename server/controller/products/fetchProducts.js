@@ -55,11 +55,17 @@ module.exports = fetchProducts;
 
 //helpers
 const filterByProduct = (products, filterOptions) => {
+  try{
   const { filter, filterAction } = filterOptions;
+  console.log(filterOptions,"options in filterby product")
+
   const filteredProducts = products.filter((product) => {
     return shouldAdd(product, filterOptions);
   });
   return filteredProducts;
+}catch(error){
+  console.log(error);
+}
 };
 
 const filterByVariant = (products, filterOptions) => {
@@ -78,6 +84,8 @@ const filterByVariant = (products, filterOptions) => {
 
 const shouldAdd = (product, filterOptions) => {
   const { filter, filterAction, filterValue } = filterOptions;
+  console.log(filterValue,"options in should add")
+
   switch (filterAction) {
     case 'n>':
       return Number(product[`${filter}`]) === Number(filterValue);
@@ -91,13 +99,24 @@ const shouldAdd = (product, filterOptions) => {
       return !(product[`${filter}`].indexOf(filterValue) !== -1);
     case 's!':
     case 'd===':
-        const isStartDateLesser = moment
-          .utc(product[`${filter}`])
-          .isAfter(moment(filter.start));
-        const isEndDateGreater = moment
-          .utc(product[`${filter}`])
-          .isBefore(moment(filter.end));
-        return isStartDateLesser && isEndDateGreater;
+      const parsedFilterValue = JSON.parse(filterValue);
+      const start_date = moment(parsedFilterValue.start,"YYYY-MM-DDTHH:mm:ss.sssZ").utc().format("YYYY-MM-DD");
+      const end_date = moment(parsedFilterValue.end,"YYYY-MM-DDTHH:mm:ss.sssZ").utc().format("YYYY-MM-DD");
+      // const start_date = filterValue.start.split("T")[0];
+      // const end_date = filterValue.end.split("T")[0];
+      const productDate = moment(product[`${filter}`]).utc().format("YYYY-MM-DD")
+
+      const isDateInRange = moment(product[`${filter}`]).isBetween(start_date,end_date) || moment(productDate).isSame(start_date) || moment(productDate).isSame(end_date);
+      console.log(start_date,end_date,isDateInRange,product[`${filter}`],"dates");
+      return isDateInRange;
+      // const compare_date = moment(product[`${filter}`])
+      // const end_date = moment().format()
+      // console.log(product,product[`${filter}`],"product in date selection",moment(product[`${filterValue.start}`]),moment(product[`${filterValue.end}`]),moment(product[`${filter}`]))
+        // const isStartDateLesser = moment(product[`${filter}`]).format
+        //   .isAfter(moment(filterValue.start));
+        // const isEndDateGreater = moment(product[`${filter}`])
+        //   .isBefore(moment(filterValue.end));
+        // return isStartDateLesser && isEndDateGreater;
     default:
       return false;
   }

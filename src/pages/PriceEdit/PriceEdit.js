@@ -9,6 +9,7 @@ import Step3 from './steps/step3.js';
 import Step4 from './steps/step4.js';
 import isEmpty from 'lodash/isEmpty';
 import validator from "./validator.js";
+import useInterval from '../hooks/useInterval.js';
 
 import ToastWrapper from '../components/ToastWrapper/ToastWrapper.js';
 
@@ -25,13 +26,40 @@ const defaultToastOptions = {
   error:false
 }
 const PriceEdit = () => {
+  
   const [values, setFormValues] = useState(initialFormValues);
   const [formSubmit, setFormSubmit] = useState(false);
   const [formErrors, setFormErrors] = useState({});
   const [products, setProducts] = useState([]);
   const [toast,setToast] = useState(defaultToastOptions);
   const [productState,setProductState] = useState("empty")
+  const [queueId,setQueueId] = useState(null);
+  const [taskCount,setTaskCount] = useState({qTasks:0,cTasks:0})
+  const [isUpdateLoading,setUpdateLoading] = useState(false);
+  useInterval(() => {
+    if (queueId !== null && queueId !== undefined) {
+      getQueueCallback(queueId);
+    }
+  }, 10000);
+  const getQueueCallback = async () => {
+    try{
+    const {data} = await api.get(
+      `taskprogress`
+    );
+    const qTasksCount = data.qtasks;
+    const cTasksCount = data.cTasks;
+    if(cTasksCount !== qTasksCount){
+      setTaskCount({qTasks:qTasksCount,cTasks:cTasksCount})
+    }else{
+      setQueueId(null);
+      setToast({active:true,message:`products updated successfully`,error:false})
+    }
 
+    }catch(err){
+      setProductState("error",err);
+      setToast({active:true,message:`${err.response.statusText}`,error:true})
+    }
+  }
   const fetchProducts = async () => {
     try{
       setProductState("loading");
@@ -58,7 +86,8 @@ const PriceEdit = () => {
   };
   const updateSelectedProducts = async () => {
     // setFormSubmit(true);
-
+    // setUpdateLoading(true);
+    setQueueId(1);
     const errors = validator(values);
     console.log(errors)
     if (isEmpty(errors)) {
@@ -86,7 +115,9 @@ const PriceEdit = () => {
       };
       const { data } = await api.put(`products`, paylaod);
       // setFormSubmit(false);
-      fetchProducts();
+      console.log(data,"data")
+      setQueueId(data.id);
+      // setUpdateLoading(false);
     } else {
       setFormErrors(errors);
     }
@@ -122,6 +153,7 @@ const PriceEdit = () => {
             values={values}
             formErrors={formErrors}
             setFormValues={setFormValues}
+            isUpdateLoading={isUpdateLoading}
           />
         </form>
         <br />

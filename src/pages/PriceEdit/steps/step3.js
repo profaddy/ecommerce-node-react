@@ -80,7 +80,7 @@ const Step3 = (props) => {
                 setFormValues({
                   ...values,
                   variantFilter: value,
-                  variantFilterAction:getFilterOptions(value)[0].value
+                  variantFilterAction:!!getFilterOptions(value)[0] ? getFilterOptions(value)[0].value : "none"
                 });
               }}
               value={values.variantFilter}

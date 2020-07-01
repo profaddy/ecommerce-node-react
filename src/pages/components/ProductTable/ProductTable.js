@@ -18,9 +18,9 @@ const ProductTable = (props) => {
             <div style={styles.rowWrap}>
               <div style={styles.columnItem}>
                 <img
-                  src={get(product, 'images.src') || null}
-                  width={20}
-                  height={20}
+                  src={get(product, 'images[0].src') || null}
+                  width={50}
+                  height={50}
                 />
               </div>
               <div style={styles.columnItem}>{product.title}</div>
@@ -39,16 +39,14 @@ const ProductTable = (props) => {
                   <div style={styles.variantItem}>price</div>
                   <div style={styles.variantItem}>compared price</div>
                   <div style={styles.variantItem}>weight</div>
-                  <div style={styles.variantItem}>price</div>
                 </div>
                 {product.variants.map((variant) => {
                   return (
                     <div style={styles.rowWrap}>
-                      <div style={styles.variantItem}>grey</div>
-                  <div style={styles.variantItem}>{variant.price}</div>
-                      <div style={styles.variantItem}>50</div>
-                      <div style={styles.variantItem}>20kg</div>
-                      <div style={styles.variantItem}>20</div>
+                    <div style={styles.variantItem}>{variant.title}</div>
+                    <div style={styles.variantItem}>{variant.price}</div>
+                    <div style={styles.variantItem}>{variant.compare_at_price}</div>
+                    <div style={styles.variantItem}>{variant.weight} {variant.weight_unit}</div>
                     </div>
                   );
                 })}

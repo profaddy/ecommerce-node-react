@@ -1,12 +1,12 @@
 const filters = [
   {
-    label:"all variants",
+    label:"All variants",
     value:"allVariants",
     type:'variant',
     comparisonType:'none'
   },
   {
-    label:"all products",
+    label:"All products",
     value:"allProducts",
     type:'product',
     comparisonType:'none'
@@ -25,13 +25,13 @@ const filters = [
     },
     {
       label: 'created_at',
-      value: 'type',
+      value: 'created_at',
       type:'product',
       comparisonType:'date'
     },
     {
       label: 'pusblished_at',
-      value: 'type',
+      value: 'pusblished_at',
       type:'product',
       comparisonType:'date'
     },

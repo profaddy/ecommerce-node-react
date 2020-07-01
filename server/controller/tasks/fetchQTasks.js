@@ -2,12 +2,12 @@ const Task = require('../../models/queuedTasks.js');
 
 const fetchTasks = async (ctx) => {
   try {
-
-    console.log("queueId",ctx.params.queueId);
+    console.log("queueId qtask",ctx.params.queueId);
     const shopOrigin = ctx.session.shop;
     const TaskDetails = await Task.find({
         shopOrigin: shopOrigin,
-        queueId:ctx.params.queueId
+        queueId:ctx.params.queueId,
+        status:"queued"
       }).exec();
       ctx.status = 200;
       ctx.body = {

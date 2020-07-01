@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card , Select, TextField} from '@shopify/polaris';
+import { Card , Select, TextField, ProgressBar} from '@shopify/polaris';
 
 const EditOptions = [
     { label: 'Change price to', value: 'changeToCustomValue' },
@@ -7,7 +7,7 @@ const EditOptions = [
     { label: 'Adjust price by percentage', value: 'addPriceByPercentage' },
   ];
 const Step4 = (props) => {
-    const {values, setFormValues, formErrors} = props;
+    const {values, setFormValues, formErrors, isUpdateLoading} = props;
     const getContentBasedOnEditSelection = () => {
         const editOption = { values };
         switch (editOption) {
@@ -15,6 +15,8 @@ const Step4 = (props) => {
             return (
               <TextField
                 name="editValue"
+                type="number"
+                min="0"
                 label={'Price'}
                 value={values.editValue}
                 onChange={(value) => setFormValues({ ...values, editValue: value })}
@@ -24,6 +26,8 @@ const Step4 = (props) => {
             return (
               <TextField
                 name="editValue"
+                type="number"
+                min="0"
                 label={'Price in INR'}
                 value={values.editValue}
                 onChange={(value) => setFormValues({ ...values, editValue: value })}
@@ -31,17 +35,24 @@ const Step4 = (props) => {
             );
           case 'addPriceByPercentage':
             return (
+              <>
               <TextField
                 name="editValue"
+                type="number"
+                min="0"
                 label={'Price in %'}
                 value={values.editValue}
                 onChange={(value) => setFormValues({ ...values, editValue: value })}
               />
+              %
+              </>
             );
           default:
             return (
               <TextField
+              type="number"
                 name="editValue"
+                min="0"
                 value={values.editValue}
                 onChange={(value) => setFormValues({ ...values, editValue: value })}
               />
@@ -53,6 +64,9 @@ const Step4 = (props) => {
       <div style={styles.step}>STEP4: Select what to Edit</div>
       <Card>
         <div style={styles.editOptionWrapper}>
+        {isUpdateLoading &&  <ProgressBar progress={100} size="small" />}
+{!isUpdateLoading &&
+<>
           <div style={styles.editOptionItem}>
             <Select
               key={'editOptions'}
@@ -69,6 +83,8 @@ const Step4 = (props) => {
             {getContentBasedOnEditSelection()}
             {formErrors && formErrors["editValue"] && <div style={styles.error}>{formErrors["editValue"]}</div>}
           </div>
+          </>
+}
         </div>
       </Card>
     </div>

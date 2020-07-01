@@ -38,7 +38,7 @@ const updateProduts = async (ctx) => {
       editValue:editValue,
       variantFilterOptions:variantFilterOptions,
       variants:filteredVariants,
-      status:"success",
+      status:"queued",
       created_at: new Date(),
       updated_at: new Date()   
     });
@@ -93,6 +93,7 @@ const updateProduts = async (ctx) => {
         });
         await completedTasks.save();
       });
+      console.log(queuedTasks._id ,"completed")
       await QTask.updateOne({ shopOrigin:shopOrigin,_id:queuedTasks._id }, {
         $set: {
             status:"completed",
@@ -100,6 +101,11 @@ const updateProduts = async (ctx) => {
         }
     });
     }
+    ctx.status = 200;
+    ctx.body = {
+      status: true,
+      data: {id:variantList._id}
+    };
     await updateFiltreedVariants();
     if (!isEmpty(errors)) {
       throw errors;

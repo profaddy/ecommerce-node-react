@@ -1,11 +1,11 @@
 'use strict';
 const Router = require('koa-router');
-const router = new Router({ prefix: '/api/v1/qtasks' });
-const fetchTasks = require('../controller/tasks/fetchTasks.js');
+const router = new Router({ prefix: '/api/v1/taskprogress' });
+const fetchTasksProgress = require('../controller/tasks/fetchTaskProgress.js');
 
 router.get('/', async (ctx) => {
   try {
-    await fetchTasks(ctx);
+    await fetchTasksProgress(ctx);
   } catch (err) {
     ctx.status = err.status;
     ctx.body = {

@@ -1,11 +1,24 @@
-import React,{useState,useCallback} from 'react';
+import React, { useState, useCallback } from 'react';
 import isEmpty from 'lodash/isEmpty';
 import filters from '../filters';
-import { Select, Card, Button, TextField ,DatePicker,Popover} from '@shopify/polaris';
+import {
+  Select,
+  Card,
+  Button,
+  TextField,
+  DatePicker,
+  Popover,
+  Icon
+} from '@shopify/polaris';
+import prettyDate from '../../../../utils/prettyDate.js';
+import {
+  CalendarMajorMonotone
+} from '@shopify/polaris-icons';
+
 // import DatePicker from '../../components/DatePicker/datepicker.js';
 
 const Step1 = (props) => {
-  const currentDate = new Date()
+  const currentDate = new Date();
   const [{ month, year }, setDate] = useState({
     month: currentDate.getMonth(),
     year: currentDate.getFullYear(),
@@ -19,18 +32,50 @@ const Step1 = (props) => {
     (month, year) => setDate({ month, year }),
     []
   );
-  const [active,setActive] = useState(false);
+  const [active, setActive] = useState(false);
 
   const onDateSelection = (value) => {
-    console.log(value,"selected date");
+    console.log(value, 'selected date');
     setSelectedDates(value);
-    setFormValues({ ...values, filterValue: value })
-  }
+    setFormValues({ ...values, filterValue: JSON.stringify(value) });
+  };
   const activator = (
-    <Button fullWidth onClick={() => setActive(!active)}>
-      Date picker
-    </Button>
-  );  
+    <>
+  <div onClick={() => setActive(!active)}>
+  <Icon
+  source={CalendarMajorMonotone} onClick={() => setActive(!active)}/>
+  </div>
+  </>
+    // <Button fullWidth onClick={() => setActive(!active)}>
+    //   Date picker
+    // </Button>
+  );
+  const conditionalFilterAction = () => {
+    return (
+      <div style={styles.formItem}>
+        <Select
+          key={'filter'}
+          name="filterAction"
+          options={getFilterOptions()}
+          onChange={(value) => {
+            setFormValues({ ...values, filterAction: value });
+          }}
+          value={values.filterAction}
+        />
+      </div>
+    );
+  };
+
+  const daterange = () => {
+    return (
+           <TextField
+          name="filterValue"
+          type="text"
+          value={`${prettyDate(selectedDates.start)} - ${prettyDate(selectedDates.end)}`}
+          // onChange={(value) => setFormValues({ ...values, filterValue: value })}
+        />
+    );
+  };
   const StringField = () => {
     return (
       <div style={styles.formItem}>
@@ -65,26 +110,28 @@ const Step1 = (props) => {
   const DateField = () => {
     return (
       <div style={styles.formItem}>
-              <Popover
-        active={active}
-        activator={activator}
-        onClose={() => setActive(!active)}
-        allowRange={true}
-        sectioned
-        // fullWidth
-      >
-        <DatePicker
-          month={month}
-          year={year}
-          onChange={onDateSelection}
-          onMonthChange={onMonthChange}
-          selected={selectedDates}
+        <div style={{display:"flex"}}>
+        <div>{prettyDate(selectedDates.start)} - {prettyDate(selectedDates.end)}</div>
+        <div>
+        <Popover
+          active={active}
+          activator={activator}
+          onClose={() => setActive(!active)}
           allowRange={true}
-        />
+          sectioned
+          // fullWidth
+        >
+          <DatePicker
+            month={month}
+            year={year}
+            onChange={onDateSelection}
+            onMonthChange={onMonthChange}
+            selected={selectedDates}
+            allowRange={true}
+          />
         </Popover>
-        {formSubmit === true && isEmpty(values.filterValue) && (
-          <div style={{ color: 'red' }}>Please provide a value</div>
-        )}
+        </div>
+        </div>
       </div>
     );
   };
@@ -102,23 +149,35 @@ const Step1 = (props) => {
       switch (comparisonType) {
         case 'string':
           return [
-            { label: 'contains', value: 's===', content: StringField },
+            {
+              label: 'contains',
+              value: 's===',
+              content: StringField,
+              filterAction: conditionalFilterAction,
+            },
             { label: 'does not contain', value: 's!==', content: StringField },
             { label: 'is empty', value: 's!', content: StringField },
           ];
         case 'number':
           return [
-            { label: 'is equal to', value: 'n===', content: NumberField },
+            {
+              label: 'is equal to',
+              value: 'n===',
+              content: NumberField,
+              filterAction: conditionalFilterAction,
+            },
             { label: 'is not equal to', value: 'n!==', content: NumberField },
             { label: 'is less than', value: 'n>', content: NumberField },
             { label: 'is greater than', value: 'n<', content: NumberField },
           ];
         case 'date':
           return [
-            { label: 'is equal to', value: 'd===', content: DateField },
-            { label: 'is not equal to', value: 'd!==', content: DateField },
-            { label: 'is less than', value: 'd>', content: DateField },
-            { label: 'is greater than', value: 'd<', content: DateField },
+            {
+              label: 'Range is',
+              value: 'd===',
+              content: DateField,
+              filterAction: daterange,
+            },
           ];
         default:
           return [];
@@ -131,6 +190,7 @@ const Step1 = (props) => {
               label: 'of all variants contains',
               value: 's===',
               content: StringField,
+              filterAction: conditionalFilterAction,
             },
             {
               label: 'of all variants does not contain',
@@ -149,6 +209,7 @@ const Step1 = (props) => {
               label: 'of all variants is equal to',
               value: 'n===',
               content: NumberField,
+              filterAction: conditionalFilterAction,
             },
             {
               label: 'of all variants is not equal to',
@@ -172,6 +233,7 @@ const Step1 = (props) => {
               label: 'of all variants is equal to',
               value: 'd===',
               content: DateField,
+              filterAction: daterange,
             },
             {
               label: 'of all variants is not equal to',
@@ -210,7 +272,9 @@ const Step1 = (props) => {
                 setFormValues({
                   ...values,
                   filter: value,
-                  filterAction: getFilterOptions(value)[0].value,
+                  filterAction: !!getFilterOptions(value)[0]
+                    ? getFilterOptions(value)[0].value
+                    : 'none',
                 });
               }}
               value={values.filter}
@@ -218,7 +282,6 @@ const Step1 = (props) => {
           </div>
           {values.filter !== 'allProducts' && (
             <>
-          
               <div style={styles.formItem}>
                 <Select
                   key={'filter'}
@@ -253,10 +316,13 @@ const Step1 = (props) => {
             <Button
               submit
               primary
-              onClick={() => fetchProducts()}
+              onClick={(e) => {
+                e.preventDefault();
+                fetchProducts();
+              }}
               disabled={false}
             >
-              Apply
+              Preview Products
             </Button>
           </div>
         </div>

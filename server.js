@@ -16,6 +16,7 @@ const app = next({ dev });
 const handle = app.getRequestHandler();
 const productRouter = require('./server/routers/productRouter');
 const testRouter = require('./server/routers/testRouter');
+const taskProgressRouter = require('./server/routers/FetchTaskProgress.js');
 const Shop = require('./server/models/Shops.js');
 const { isEmpty } = require('lodash');
 const fs = require('fs');
@@ -98,6 +99,8 @@ app.prepare().then(() => {
   );
   server.use(productRouter.routes());
   server.use(productRouter.allowedMethods());
+  server.use(taskProgressRouter.routes());
+  server.use(taskProgressRouter.allowedMethods());
   server.use(testRouter.routes());
   server.use(testRouter.allowedMethods());
   server.use(async (ctx) => {
