@@ -8,12 +8,10 @@ import {
   TextField,
   DatePicker,
   Popover,
-  Icon
+  Icon,
 } from '@shopify/polaris';
 import prettyDate from '../../../../utils/prettyDate.js';
-import {
-  CalendarMajorMonotone
-} from '@shopify/polaris-icons';
+import { CalendarMajorMonotone } from '@shopify/polaris-icons';
 
 // import DatePicker from '../../components/DatePicker/datepicker.js';
 
@@ -41,11 +39,13 @@ const Step1 = (props) => {
   };
   const activator = (
     <>
-  <div onClick={() => setActive(!active)}>
-  <Icon
-  source={CalendarMajorMonotone} onClick={() => setActive(!active)}/>
-  </div>
-  </>
+      <div onClick={() => setActive(!active)}>
+        <Icon
+          source={CalendarMajorMonotone}
+          onClick={() => setActive(!active)}
+        />
+      </div>
+    </>
     // <Button fullWidth onClick={() => setActive(!active)}>
     //   Date picker
     // </Button>
@@ -68,12 +68,14 @@ const Step1 = (props) => {
 
   const daterange = () => {
     return (
-           <TextField
-          name="filterValue"
-          type="text"
-          value={`${prettyDate(selectedDates.start)} - ${prettyDate(selectedDates.end)}`}
-          // onChange={(value) => setFormValues({ ...values, filterValue: value })}
-        />
+      <TextField
+        name="filterValue"
+        type="text"
+        value={`${prettyDate(selectedDates.start)} - ${prettyDate(
+          selectedDates.end
+        )}`}
+        // onChange={(value) => setFormValues({ ...values, filterValue: value })}
+      />
     );
   };
   const StringField = () => {
@@ -110,27 +112,29 @@ const Step1 = (props) => {
   const DateField = () => {
     return (
       <div style={styles.formItem}>
-        <div style={{display:"flex"}}>
-        <div>{prettyDate(selectedDates.start)} - {prettyDate(selectedDates.end)}</div>
-        <div>
-        <Popover
-          active={active}
-          activator={activator}
-          onClose={() => setActive(!active)}
-          allowRange={true}
-          sectioned
-          // fullWidth
-        >
-          <DatePicker
-            month={month}
-            year={year}
-            onChange={onDateSelection}
-            onMonthChange={onMonthChange}
-            selected={selectedDates}
-            allowRange={true}
-          />
-        </Popover>
-        </div>
+        <div style={{ display: 'flex' }}>
+          <div>
+            {prettyDate(selectedDates.start)} - {prettyDate(selectedDates.end)}
+          </div>
+          <div>
+            <Popover
+              active={active}
+              activator={activator}
+              onClose={() => setActive(!active)}
+              allowRange={true}
+              sectioned
+              // fullWidth
+            >
+              <DatePicker
+                month={month}
+                year={year}
+                onChange={onDateSelection}
+                onMonthChange={onMonthChange}
+                selected={selectedDates}
+                allowRange={true}
+              />
+            </Popover>
+          </div>
         </div>
       </div>
     );

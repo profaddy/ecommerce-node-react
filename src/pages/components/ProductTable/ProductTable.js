@@ -81,6 +81,8 @@ const styles = {
   listWrapper: {
     backgroundColor: '#FAFBFC',
     padding: 20,
+    overflow:"scroll",
+    maxHeight:300
   },
   columnItem: {
     flex: 1,

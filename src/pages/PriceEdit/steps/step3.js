@@ -6,7 +6,7 @@ import { Select, Card, Button, TextField } from '@shopify/polaris';
 const Step3 = (props) => {
   const { values, formSubmit, setFormValues } = props;
   const getFilterOptions = (value) => {
-    const filterValue = isEmpty(value) ? values.variantFilter : value
+    const filterValue = isEmpty(value) ? values.variantFilter : value;
 
     const selectedFilter = filters.filter((item) => {
       return item.type === 'variant' && item.value === filterValue;
@@ -80,7 +80,9 @@ const Step3 = (props) => {
                 setFormValues({
                   ...values,
                   variantFilter: value,
-                  variantFilterAction:!!getFilterOptions(value)[0] ? getFilterOptions(value)[0].value : "none"
+                  variantFilterAction: !!getFilterOptions(value)[0]
+                    ? getFilterOptions(value)[0].value
+                    : 'none',
                 });
               }}
               value={values.variantFilter}

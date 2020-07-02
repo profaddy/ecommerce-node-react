@@ -5,7 +5,7 @@ export const editOptions = [
     //   navigationPath: '/product-detail',
     // },
     {
-      cardColor: '#0D764B',
+      cardColor: '#605ca8',
       title: 'Price',
       navigationPath: '/PriceEdit',
     },
