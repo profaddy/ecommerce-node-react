@@ -21,6 +21,9 @@ const Shop = require('./server/models/Shops.js');
 const { isEmpty } = require('lodash');
 const fs = require('fs');
 const https = require('https');
+var cron = require('node-cron');
+ 
+
 
 const connectMongod = async () => {
   try {
@@ -39,6 +42,10 @@ mongoose.connection.on('error', (error) => {
 });
 
 const { SHOPIFY_API_SECRET_KEY, SHOPIFY_API_KEY } = process.env;
+// cron.schedule('30,*,*,* * * ', () => {
+//   console.log('running every 30 seconds');
+//   const 
+// });
 
 app.prepare().then(() => {
   const server = new Koa(app);

@@ -266,7 +266,7 @@ const Step1 = (props) => {
     <div>
       <div style={styles.step}>STEP1: Filter Products</div>
       <Card sectioned>
-        <div style={{ display: 'flex' }}>
+        <div style={{ display: 'flex', flexWrap:"wrap"}}>
           <div style={styles.formItem}>
             <Select
               key={'filter'}
@@ -339,6 +339,8 @@ const styles = {
   formItem: {
     marginRight: 15,
     minWidth: 200,
+    maxWidth:200,
+    paddingBottom:15
   },
   step: {
     margin: '10px auto',
