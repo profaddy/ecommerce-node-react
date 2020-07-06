@@ -68,10 +68,10 @@ const Step4 = (props) => {
       <Card>
         <div style={styles.editOptionWrapper}>
           {isUpdateLoading && (
-            <>
+            <div style={styles.loader}>
               Please wait while Updating Products...
               <ProgressBar progress={100} size="small" />
-            </>
+            </div>
           )}
           {!isUpdateLoading && (
             <>
@@ -106,6 +106,14 @@ const styles = {
   formContainer: {
     display: 'flex',
     width: '100%',
+  },
+  loader:{
+   textAlign: 'center',
+   display: 'flex',
+   margin:20,
+   justifyContent: 'center',
+   alignItems: 'center',
+   flexDirection: 'column'
   },
   formItem: {
     marginRight: 15,

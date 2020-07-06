@@ -67,7 +67,6 @@ const PriceEdit = () => {
       }
     } catch (err) {
       console.log(err, 'error');
-      // setProductState("error",err);
       setToast({
         active: true,
         message: `${(err && err.response && err.response.statusText) || err}`,
@@ -75,7 +74,7 @@ const PriceEdit = () => {
       });
     }
   };
-  const fetchProducts = async () => {
+  const fetchProducts = async (action=null) => {
     try {
       setProductState('loading');
       const filterType = filters.filter(
@@ -86,7 +85,7 @@ const PriceEdit = () => {
         `products?filter=${filter}&filterType=${filterType}&filterAction=${filterAction}&filterValue=${filterValue}`
       );
       if (data.status === false) {
-        throw 'test';
+        throw data.msg;
       }
       setToast({
         active: true,
@@ -109,7 +108,6 @@ const PriceEdit = () => {
     console.log('values', values);
   };
   const updateSelectedProducts = async () => {
-    // setFormSubmit(true);
     setUpdateLoading(true);
     setToast({
       active: true,
@@ -182,9 +180,13 @@ const PriceEdit = () => {
             values={values}
             formSubmit={formSubmit}
             formErrors={formErrors}
+            productState={productState}
             setFormValues={setFormValues}
           />
-          <Step2 products={products} productState={productState} />
+          <Step2
+            products={products}
+            productState={productState}
+          />
           <Step3
             values={values}
             formSubmit={formSubmit}
@@ -203,7 +205,10 @@ const PriceEdit = () => {
           <div style={styles.footerWrap}>
             <div style={styles.buttonWrap}>
               <Button
-                onClick={() => setFormValues(initialFormValues)}
+                onClick={() => {
+                  setFormValues(initialFormValues);
+                  setProducts([]);
+                }}
                 disabled={isUpdateLoading}
               >
                 Reset
@@ -213,10 +218,12 @@ const PriceEdit = () => {
               <Button
                 primary
                 onClick={() => updateSelectedProducts()}
+                loading={
+                  isUpdateLoading
+                }
                 disabled={
                   isEmpty(products) ||
-                  isEmpty(values.editValue) ||
-                  isUpdateLoading
+                  isEmpty(values.editValue)
                 }
               >
                 Start Bulk Editing
@@ -254,7 +261,7 @@ const styles = {
   },
   footerWrap: {
     display: 'flex',
-    justifyContent: "flex-end"
+    justifyContent: 'flex-end',
   },
   buttonWrap: {
     margin: 10,

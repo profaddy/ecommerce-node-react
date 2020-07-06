@@ -1,35 +1,35 @@
 import React, { useState } from 'react';
 import get from 'lodash/get';
-import { Icon } from '@shopify/polaris';
-import ReactPaginate from 'react-paginate';
-import {
-  ArrowRightMinor,ArrowLeftMinor
-} from '@shopify/polaris-icons';
+import { Pagination } from '@shopify/polaris';
 
-import "./styles.css";
-// const initialPaginationParams = {
-//   data:products.slice(),
-//   pageCount:products
-// }
+import './styles.css';
 const ProductTable = (props) => {
   const { products } = props;
 
   const initialPaginationParams = {
-    data:products.slice(0,2),
-    pageCount:5,
-    perPage:2
-  }
-  const [paginationParams,setPaginationParams] = useState(initialPaginationParams);
-  const {pageCount,perPage,data} = paginationParams;
-  const handlePageClick = (data) => {
-    let selected = data.selected;
-    let offset = Math.ceil((selected) * perPage);
-    loadData(offset);
-  }
-  const loadData = (offset) => {
-    const updatedProducts = products.slice(offset,offset + (perPage));
-    setPaginationParams({...paginationParams,data:updatedProducts,pageCount:products.length/perPage})
-  }
+    data: products.slice(0, 10),
+    pageCount: Math.ceil(products.length / 10),
+    perPage: 10,
+    selected: 0,
+  };
+  const [paginationParams, setPaginationParams] = useState(
+    initialPaginationParams
+  );
+  const { pageCount, perPage, data, selected } = paginationParams;
+  const handlPageClick = (action) => {
+    let selectedPage = action === 'next' ? selected + 1 : selected - 1;
+    const offset = Math.ceil(selectedPage * perPage);
+    loadData(offset, selectedPage);
+  };
+  const loadData = (offset, selected) => {
+    const updatedProducts = products.slice(offset, offset + perPage);
+    setPaginationParams({
+      ...paginationParams,
+      data: updatedProducts,
+      pageCount: Math.ceil(products.length / perPage),
+      selected: selected,
+    });
+  };
   return (
     <>
       <div style={styles.tableWrapper}>
@@ -88,27 +88,29 @@ const ProductTable = (props) => {
           })}
         </div>
       </div>
-      <ReactPaginate
-          previousLabel={<><Icon
-            source={ArrowLeftMinor} /></>
-            }
-          nextLabel={<><Icon
-          source={ArrowRightMinor} /></>}
-          breakLabel={'...'}
-          breakClassName={'break-me'}
-          pageCount={pageCount}
-          marginPagesDisplayed={2}
-          pageRangeDisplayed={5}
-          onPageChange={handlePageClick}
-          containerClassName={'pagination'}
-          subContainerClassName={'pages pagination'}
-          activeClassName={'active'}
+      <div style={styles.pagination}>
+        <Pagination
+          label={`Page ${selected + 1} of ${pageCount}`}
+          hasPrevious={selected + 1 !== 1}
+          onPrevious={() => {
+            handlPageClick('previous');
+          }}
+          hasNext={selected + 1 !== 100}
+          onNext={() => {
+            handlPageClick('next');
+          }}
         />
+      </div>
     </>
   );
 };
 
 const styles = {
+  pagination: {
+    display: 'flex',
+    justifyContent: 'center',
+    padding: 15,
+  },
   tableWrapper: {
     display: 'flex',
     flexDirection: 'column',
@@ -130,7 +132,7 @@ const styles = {
   listWrapper: {
     backgroundColor: '#FAFBFC',
     padding: 20,
-    overflow: 'scroll',
+    overflowY: 'scroll',
     maxHeight: 300,
   },
   columnItem: {

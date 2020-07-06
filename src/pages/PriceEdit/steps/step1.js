@@ -39,16 +39,13 @@ const Step1 = (props) => {
   };
   const activator = (
     <>
-      <div onClick={() => setActive(!active)}>
+      <div style={styles.calenderIcon} onClick={() => setActive(!active)}>
         <Icon
           source={CalendarMajorMonotone}
           onClick={() => setActive(!active)}
         />
       </div>
     </>
-    // <Button fullWidth onClick={() => setActive(!active)}>
-    //   Date picker
-    // </Button>
   );
   const conditionalFilterAction = () => {
     return (
@@ -111,36 +108,60 @@ const Step1 = (props) => {
   };
   const DateField = () => {
     return (
-      <div style={styles.formItem}>
-        <div style={{ display: 'flex' }}>
-          <div>
-            {prettyDate(selectedDates.start)} - {prettyDate(selectedDates.end)}
-          </div>
-          <div>
-            <Popover
-              active={active}
-              activator={activator}
-              onClose={() => setActive(!active)}
+      <div
+        style={{
+          ...styles.formItem,
+          display: 'flex',
+          // maxWidth: 300,
+          // minWidth: 300,
+        }}
+      >
+        <div>
+          <TextField
+            name="filterValue"
+            type="text"
+            min="0"
+            disabled={true}
+            value={`${prettyDate(
+              selectedDates.start,
+              'DD MMM YY'
+            )} - ${prettyDate(selectedDates.end, 'DD MMM YY')}`}
+            onChange={(value) =>
+              setFormValues({ ...values, filterValue: value })
+            }
+          />
+        </div>
+        <div>
+          <Popover
+            active={active}
+            activator={activator}
+            onClose={() => setActive(!active)}
+            allowRange={true}
+            sectioned
+            // fullWidth
+          >
+            <DatePicker
+              month={month}
+              year={year}
+              onChange={onDateSelection}
+              onMonthChange={onMonthChange}
+              selected={selectedDates}
               allowRange={true}
-              sectioned
-              // fullWidth
-            >
-              <DatePicker
-                month={month}
-                year={year}
-                onChange={onDateSelection}
-                onMonthChange={onMonthChange}
-                selected={selectedDates}
-                allowRange={true}
-              />
-            </Popover>
-          </div>
+            />
+          </Popover>
         </div>
       </div>
+      // </div>
     );
   };
 
-  const { values, fetchProducts, formSubmit, setFormValues } = props;
+  const {
+    values,
+    fetchProducts,
+    formSubmit,
+    setFormValues,
+    productState,
+  } = props;
   const getFilterOptions = (value) => {
     console.log(value, 'value');
     console.log(values.filter, 'filter value');
@@ -234,25 +255,10 @@ const Step1 = (props) => {
         case 'date':
           return [
             {
-              label: 'of all variants is equal to',
+              label: 'Range is',
               value: 'd===',
               content: DateField,
               filterAction: daterange,
-            },
-            {
-              label: 'of all variants is not equal to',
-              value: 'd!==',
-              content: DateField,
-            },
-            {
-              label: 'of all variants is less than',
-              value: 'd>',
-              content: DateField,
-            },
-            {
-              label: 'of all variants is greater than',
-              value: 'd<',
-              content: DateField,
             },
           ];
         default:
@@ -266,12 +272,12 @@ const Step1 = (props) => {
     <div>
       <div style={styles.step}>STEP1: Filter Products</div>
       <Card sectioned>
-        <div style={{ display: 'flex', flexWrap:"wrap"}}>
+        <div style={{ display: 'flex', flexWrap: 'wrap' }}>
           <div style={styles.formItem}>
             <Select
               key={'filter'}
               name="filter"
-              options={filters}
+              options={filters.filter((item) => item.type === 'product')}
               onChange={(value) => {
                 setFormValues({
                   ...values,
@@ -302,18 +308,6 @@ const Step1 = (props) => {
                   values.filter &&
                   getFilterOptions(values.filter)[0].content()}
               </div>
-              {/* <div style={styles.formItem}>
-                <TextField
-                  name="filterValue"
-                  value={values.filterValue}
-                  onChange={(value) =>
-                    setFormValues({ ...values, filterValue: value })
-                  }
-                />
-                {formSubmit === true && isEmpty(values.filterValue) && (
-                  <div style={{ color: 'red' }}>Please provide a value</div>
-                )}
-              </div> */}
             </>
           )}
           <div>
@@ -324,7 +318,10 @@ const Step1 = (props) => {
                 e.preventDefault();
                 fetchProducts();
               }}
-              disabled={false}
+              disabled={
+                productState === 'loading' ||
+                (values.filter !== 'allProducts' && !values.filterValue)
+              }
             >
               Preview Products
             </Button>
@@ -336,11 +333,22 @@ const Step1 = (props) => {
 };
 
 const styles = {
+  calenderIcon: {
+    display: "flex",
+    justifyContent: "center",
+    padding: 5,
+    border: "1px solid black",
+    alignItems: "center",
+    borderLeft: 0,
+    borderColor: "rgb(195, 195, 195)",
+    borderRadius:4
+
+  },
   formItem: {
     marginRight: 15,
     minWidth: 200,
-    maxWidth:200,
-    paddingBottom:15
+    maxWidth: 200,
+    paddingBottom: 15,
   },
   step: {
     margin: '10px auto',

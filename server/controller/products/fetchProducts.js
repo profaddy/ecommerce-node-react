@@ -14,28 +14,95 @@ const fetchProducts = async (ctx) => {
     const shopDetails = await Shop.find({
       shopOrigin: shopOrigin,
     }).exec();
-    const response = await fetch(
-      `https://${shopOrigin}/admin/api/2020-04/products.json`,
-      {
-        headers: {
-          'X-Shopify-Access-Token': shopDetails[0].accessToken,
-        },
-      }
-    );
-    const jsonResponse = await response.json();
+
+const countResponse = await fetch(
+  `https://${shopOrigin}/admin/api/2020-04/products/count.json`,
+  {
+    headers: {
+      'X-Shopify-Access-Token': shopDetails[0].accessToken,
+    },
+  }
+);
+const countJson = await countResponse.json();
+const productsCount = countJson.count;
+console.log(productsCount,"productsCount");
+let productsFetched = 0;
+let productList = [];
+let url = null;
+let nextPageInfo = null;
+let reponse = null;
+const limit = productsCount > 250 ? 250 : (productsCount - 1)
+const fetchProducts = async (url) => {
+  response = await fetch(
+    url,
+    {
+      headers: {
+        'X-Shopify-Access-Token': shopDetails[0].accessToken,
+      },
+    }
+  );
+  const jsonResponse = await response.json();
+  const  link = response.headers._headers.link[0];
+  nextPageInfo = link.split(";")[0].split("&page_info=")[1].split(">")[0];
+  return {data:jsonResponse.products};
+}
+
+do{
+  console.log("do count start",productsCount,productsFetched,productList.length);
+  if( nextPageInfo === null){
+  url = `https://${shopOrigin}/admin/api/2020-04/products.json?limit=${limit}`;
+  }else{
+    url = `https://${shopOrigin}/admin/api/2020-04/products.json?limit=${limit}&page_info=${nextPageInfo}`;
+  }
+  const productsInfo = await fetchProducts(url);
+  const  {data} = productsInfo;
+  productsFetched = Number(productsFetched) + Number(data.length);
+  productList = productList.concat(data);
+  console.log("do count end",data.length,productsFetched,productList.length);
+}while(productsCount > productsFetched)
+    // console.log(nextPageInfo,"nextPageInfo");
+    // if(nextPageInfo !== null){
+    //   url = `https://${shopOrigin}/admin/api/2020-04/products.json?limit=250`
+    // }else{
+    //   url = `https://${shopOrigin}/admin/api/2020-04/products.json?limit=250&page_info=${nextPageInfo}`
+    // }
+    // const response = await fetch(
+    //   url,
+    //   {
+    //     headers: {
+    //       'X-Shopify-Access-Token': shopDetails[0].accessToken,
+    //     },
+    //   }
+    // );
+
+    // const jsonResponse = await response.json();
+    // console.log(response.headers,"headers")
+    // console.log(response.headers._headers.link[0]);
+    // const  link = response.headers._headers.link[0];
+    // nextPageInfo = link.split(";")[0].split("&page_info=")[1].split(">")[0];
+    // console.log(page_info,"page_info");
     if (response.status !== 200) {
       throw { status: response.status, msg: response.statusText };
     }
-    const { products } = jsonResponse;
+    // console.log(jsonResponse,"jsonResponse");
+console.log("products fetched completed",productList);
+
+
+
+
+
+
+    // const { products } = jsonResponse;
     let filteredProducts;
     if (filterOptions.filter === 'allProducts') {
-      filteredProducts = products;
+      filteredProducts = productList;
     } else if (filterType === 'product') {
-      filteredProducts = filterByProduct(products, filterOptions);
+      console.log("product test");
+      filteredProducts = filterByProduct(productList, filterOptions);
     } else if (filterType === 'variant') {
-      filteredProducts = filterByVariant(products, filterOptions);
+      filteredProducts = filterByVariant(productList, filterOptions);
     } else {
-      filteredProducts = products;
+      filteredProducts = productList;
     }
     ctx.status = response.status;
     ctx.body = {
@@ -43,10 +110,11 @@ const fetchProducts = async (ctx) => {
       products: filteredProducts,
     };
   } catch (err) {
-    ctx.status = err.status;
+    console.log(err,"error")
+    ctx.status = 400;
     ctx.body = {
       status: false,
-      msg: err.msg,
+      msg: err.msg || err,
     };
   }
 };
@@ -84,7 +152,7 @@ const filterByVariant = (products, filterOptions) => {
 
 const shouldAdd = (product, filterOptions) => {
   const { filter, filterAction, filterValue } = filterOptions;
-  console.log(filterValue,"options in should add")
+  // console.log(filterValue,"options in should add")
 
   switch (filterAction) {
     case 'n>':

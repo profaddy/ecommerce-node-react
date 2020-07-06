@@ -2,7 +2,7 @@ import React from 'react';
 import ProductTable from '../../components/ProductTable/ProductTable';
 import { Card, Spinner } from '@shopify/polaris';
 const Step2 = (props) => {
-  const { products, productState } = props;
+  const { products, productState} = props;
 
   const getProductsTableContent = () => {
     switch (productState) {

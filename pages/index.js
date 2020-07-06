@@ -1,9 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import Router from 'next/router';
-import isEmpty from 'lodash/isEmpty';
 import Dashboard from "../src/pages/dashboard/Dashboard.js";
 import TabComponent from '../src/pages/components/TabComponent/TabComponent.js';
-import { Card } from '@shopify/polaris';
 const Index = (props) => {
    
   const tabs = [
@@ -21,22 +18,23 @@ const Index = (props) => {
       panelID: 'about-us',
       children:<>Vowel web</>
     },
-    // {
-    //   id: 'repeat-customers',
-    //   content: 'Repeat customers',
-    //   panelID: 'repeat-customers-content',
-    // },
-    // {
-    //   id: 'prospects',
-    //   content: 'Prospects',
-    //   panelID: 'prospects-content',
-    // },
+    {
+      id: 'Instructions',
+      content: 'Instariction',
+      panelID: 'instructions',
+      children:<>Instructions will go here</>
+    },
+    {
+      id: 'Pricing',
+      content: 'Pricing',
+      panelID: 'pricing',
+      children:<>Pricing will go here</>
+    },
   ];
   return (
     <>
-    {/* <button onClick={() => {Router.push("/")}}>Home</button> */}
     <TabComponent tabs={tabs}/>
-    </>
+      </>
   );
 };
 const styles = {
