@@ -11,11 +11,11 @@ const TabComponent = (props) => {
     );
 
     return (
-      <Card>
+      // <Card>
         <Tabs tabs={tabs} selected={selected} onSelect={handleTabChange}>
           {tabs[selected].children}
         </Tabs>
-      </Card>
+      // </Card>
     );
   }
 

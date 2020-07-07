@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Dashboard from "../src/pages/dashboard/Dashboard.js";
 import TabComponent from '../src/pages/components/TabComponent/TabComponent.js';
+import Pricing from "../src/pages/Pricing/Pricing.js";
 const Index = (props) => {
    
   const tabs = [
@@ -12,13 +13,6 @@ const Index = (props) => {
       children:<Dashboard />
     },
     {
-      id: 'About us',
-      content: 'About us',
-      accessibilityLabel: 'about-us',
-      panelID: 'about-us',
-      children:<>Vowel web</>
-    },
-    {
       id: 'Instructions',
       content: 'Instariction',
       panelID: 'instructions',
@@ -28,15 +22,20 @@ const Index = (props) => {
       id: 'Pricing',
       content: 'Pricing',
       panelID: 'pricing',
-      children:<>Pricing will go here</>
+      children:<Pricing />
+    },
+    {
+      id: 'Contact us',
+      content: 'Contact us',
+      accessibilityLabel: 'contact-us',
+      panelID: 'contact-us',
+      children:<>Content will go here</>
     },
   ];
   return (
     <>
-    <TabComponent tabs={tabs}/>
-      </>
+      <TabComponent tabs={tabs}/>
+    </>
   );
 };
-const styles = {
-}
 export default Index;
