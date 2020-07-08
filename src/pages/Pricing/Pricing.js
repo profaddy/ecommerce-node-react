@@ -1,7 +1,9 @@
-import React from 'react';
+import React ,{useState}from 'react';
 import PageLayout from '../components/PageLayout/PageLayout.js';
 import BillingCard from '../components/BillingCard/BillingCard.js';
+import api from "../../../utils/api.js";
 const Pricing = (props) => {
+  const [formState,setFormState] = useState("success")
   const pricingOptions = [
     {
       price: '4.99$',
@@ -16,6 +18,7 @@ const Pricing = (props) => {
   ];
   const onSelectPlan = (plan) => {
     console.log(plan, 'selected price');
+    api.post("billing",{plan:plan});
   };
   return (
     <PageLayout title="Select Plan">
