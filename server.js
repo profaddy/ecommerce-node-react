@@ -18,15 +18,14 @@ const productRouter = require('./server/routers/productRouter');
 const testRouter = require('./server/routers/testRouter');
 const billingRouter = require('./server/routers/billingRouter.js');
 const taskProgressRouter = require('./server/routers/FetchTaskProgress.js');
-const completedTaskRouter = require('./server/routers/CompletedTaskRouter.js')
+const completedTaskRouter = require('./server/routers/CompletedTaskRouter.js');
 const emailRouter = require('./server/routers/EmailRouter.js');
 const Shop = require('./server/models/Shops.js');
 const { isEmpty } = require('lodash');
 const fs = require('fs');
 const https = require('https');
 var cron = require('node-cron');
- 
-
+const postBilling = require('./server/controller/billing/postBilling');
 
 const connectMongod = async () => {
   try {
@@ -47,7 +46,7 @@ mongoose.connection.on('error', (error) => {
 const { SHOPIFY_API_SECRET_KEY, SHOPIFY_API_KEY } = process.env;
 // cron.schedule('30,*,*,* * * ', () => {
 //   console.log('running every 30 seconds');
-//   const 
+//   const
 // });
 
 app.prepare().then(() => {
@@ -94,8 +93,13 @@ app.prepare().then(() => {
           secure: true,
           sameSite: 'none',
         });
+        const plan = {
+          price: '4.99',
+          name: 'Basic Plan',
+        };
+        const confirmationUrl = await postBilling(plan, shop);
+        ctx.redirect(confirmationUrl);
         console.log('afterAuth');
-        ctx.redirect('/');
       },
     })
   );
@@ -136,7 +140,6 @@ app.prepare().then(() => {
       '/etc/letsencrypt/live/react.vowelweb.com/fullchain.pem',
       'utf8'
     );
-  
     const config = {
       https: {
         options: {
