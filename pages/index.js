@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Dashboard from "../src/pages/dashboard/Dashboard.js";
 import TabComponent from '../src/pages/components/TabComponent/TabComponent.js';
 import Pricing from "../src/pages/Pricing/Pricing.js";
+import ContactForm from "../src/pages/Contanctus/Contactus.js"
 const Index = (props) => {
    
   const tabs = [
@@ -29,7 +30,7 @@ const Index = (props) => {
       content: 'Contact us',
       accessibilityLabel: 'contact-us',
       panelID: 'contact-us',
-      children:<>Content will go here</>
+      children:<ContactForm />
     },
   ];
   return (
