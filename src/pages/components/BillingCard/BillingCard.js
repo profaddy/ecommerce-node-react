@@ -28,8 +28,18 @@ const BillingCard = (props) => {
           </div>
         </div>
         <div style={styles.item}>
+          <Icon
+            color={'green'}
+            source={
+            CircleTickOutlineMinor
+            }
+          />{' '}
+          Activated
+        </div>
+        <div style={styles.item}>
           <Button
             primary
+            disabled
             onClick={(e) => {
               e.preventDefault();
               onSelectPlan(plan);
