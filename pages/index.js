@@ -3,6 +3,7 @@ import Dashboard from "../src/pages/dashboard/Dashboard.js";
 import TabComponent from '../src/pages/components/TabComponent/TabComponent.js';
 import Pricing from "../src/pages/Pricing/Pricing.js";
 import ContactForm from "../src/pages/Contanctus/Contactus.js"
+import {Frame} from "@shopify/polaris";
 const Index = (props) => {
    
   const tabs = [
@@ -11,7 +12,7 @@ const Index = (props) => {
       content:  "Dashboard" ,
       accessibilityLabel: 'Dashboard',
       panelID: 'dashboard',
-      children:<Dashboard />
+      children:<Dashboard config={props.config}/>
     },
     {
       id: 'Instructions',
@@ -23,20 +24,21 @@ const Index = (props) => {
       id: 'Pricing',
       content: 'Pricing',
       panelID: 'pricing',
-      children:<Pricing />
+      children:<Pricing config={props.config}/>
     },
     {
       id: 'Contact us',
       content: 'Contact us',
       accessibilityLabel: 'contact-us',
       panelID: 'contact-us',
-      children:<ContactForm />
+      children:<ContactForm config={props.config}/>
     },
   ];
+  console.log(props);
   return (
-    <>
+    <Frame>
       <TabComponent tabs={tabs}/>
-    </>
+    </Frame>
   );
 };
 export default Index;

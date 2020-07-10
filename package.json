@@ -56,7 +56,8 @@
     "react-cookie": "^4.0.3",
     "react-dom": "^16.8.6",
     "react-paginate": "^6.3.2",
-    "react-router": "^5.1.2"
+    "react-router": "^5.1.2",
+    "uuid": "^8.2.0"
   },
   "devDependencies": {
     "eslint": "^5.16.0",

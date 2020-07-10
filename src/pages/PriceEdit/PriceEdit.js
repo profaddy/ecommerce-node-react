@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Router from 'next/router';
 import api from '../../../utils/api';
 import filters from './filters';
-import { Card, Button, Icon } from '@shopify/polaris';
+import { Card, Button, Icon , Frame} from '@shopify/polaris';
 import Step1 from './steps/step1.js';
 import Step2 from './steps/step2.js';
 import Step3 from './steps/step3.js';
@@ -11,7 +11,6 @@ import isEmpty from 'lodash/isEmpty';
 import validator from './validator.js';
 import useInterval from '../hooks/useInterval.js';
 import { MobileChevronMajorMonotone } from '@shopify/polaris-icons';
-
 import ToastWrapper from '../components/ToastWrapper/ToastWrapper.js';
 
 const initialFormValues = {
@@ -26,7 +25,7 @@ const defaultToastOptions = {
   message: '',
   error: false,
 };
-const PriceEdit = () => {
+const PriceEdit = (props) => {
   const [values, setFormValues] = useState(initialFormValues);
   const [formSubmit, setFormSubmit] = useState(false);
   const [formErrors, setFormErrors] = useState({});
@@ -163,6 +162,7 @@ const PriceEdit = () => {
   };
 
   return (
+    <Frame>
     <div style={styles.pageWrapper}>
       <div
         style={styles.homeLink}
@@ -245,6 +245,7 @@ const PriceEdit = () => {
         onDismiss={() => setToast({ defaultToastOptions })}
       />
     </div>
+    </Frame>
   );
 };
 const styles = {

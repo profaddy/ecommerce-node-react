@@ -2,8 +2,17 @@ import React ,{useState}from 'react';
 import PageLayout from '../components/PageLayout/PageLayout.js';
 import BillingCard from '../components/BillingCard/BillingCard.js';
 import api from "../../../utils/api.js";
+import ToastWrapper from "../components/ToastWrapper/ToastWrapper.js"
+
+const defaultToastOptions = {
+  active: false,
+  message: '',
+  error: false,
+};
+
 const Pricing = (props) => {
-  const [formState,setFormState] = useState("success")
+  const [formState,setFormState] = useState("success");
+  const [toast, setToast] = useState(defaultToastOptions);
   const pricingOptions = [
     {
       price: '4.99$',
@@ -16,12 +25,27 @@ const Pricing = (props) => {
       ],
     },
   ];
-  const onSelectPlan = (plan) => {
+  const onSelectPlan = async (plan) => {
+    try{
     console.log(plan, 'selected price');
-    api.post("billing",{plan:plan});
+    const response = await api.post("billing",{plan:plan});
+    setToast({
+      active: true,
+      message: `Plan activated`,
+      error: false,
+    });
+    }catch(err){
+      console.log(err, 'error');
+      setToast({
+        active: true,
+        message: `${(err && err.response && err.response.statusText) || err}`,
+        error: true,
+      });
+    }
   };
   return (
     <PageLayout title="Select Plan">
+      <>
       <div key={new Date()} style={styles.eidtCardContainer}>
         {pricingOptions.map((plan) => {
           return (
@@ -31,6 +55,13 @@ const Pricing = (props) => {
           );
         })}
       </div>
+      <ToastWrapper
+        active={toast.active}
+        message={toast.message}
+        error={toast.error}
+        onDismiss={() => setToast({ defaultToastOptions })}
+      />
+      </>
     </PageLayout>
   );
 };

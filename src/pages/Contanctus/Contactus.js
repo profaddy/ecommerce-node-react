@@ -8,17 +8,27 @@ import {
 } from '@shopify/polaris';
 import api from '../../../utils/api.js';
 import { isEmpty } from 'lodash';
+import ToastWrapper from '../components/ToastWrapper/ToastWrapper.js';
+
 const initialFormValues = {
   email: '',
   name: '',
   message: '',
 };
 
+const defaultToastOptions = {
+  active: false,
+  message: '',
+  error: false,
+};
+
 const ContactForm = (props) => {
+  console.log(props, 'props');
   const [formValues, setFormValues] = useState(initialFormValues);
   const { email, name, message } = formValues;
   const [isFormSubmitted, setFormSubmitted] = useState(false);
-
+  const [formState, setFormState] = useState('success');
+  const [toast, setToast] = useState(defaultToastOptions);
   const isInvalid = (name) => {
     if (isFormSubmitted && isEmpty(formValues[name])) {
       return true;
@@ -27,12 +37,34 @@ const ContactForm = (props) => {
     }
   };
   const onFormSubmit = async () => {
-    const payload = {
-      mailOptions: { name, email, message },
-    };
-    const response = await api.post('/contactus', payload);
-    setFormSubmitted(true);
-    console.log(response, 'resp');
+    try {
+      setFormSubmitted(true);
+      if(isEmpty(name) || isEmpty(email) || isEmpty(message)){
+        return false;
+      };
+      setFormState('loading');
+      const ticketId = Math.ceil((Date.now() + Math.random()) / 100000000);
+      const payload = {
+        mailOptions: { name, email, message, ticketId },
+      };
+      const response = await api.post('/contactus', payload);
+      setFormState('success');
+      setFormSubmitted(false);
+      setToast({
+        active: true,
+        message: `Ticket submitted successfully`,
+        error: false,
+      });
+      setFormValues(initialFormValues);
+    } catch (err) {
+      setFormState('failed');
+      console.log(err, 'error');
+      setToast({
+        active: true,
+        message: `${(err && err.response && err.response.statusText) || err}`,
+        error: true,
+      });
+    }
   };
   return (
     <Card sectioned>
@@ -58,7 +90,7 @@ const ContactForm = (props) => {
           value={email}
           onChange={(value) => setFormValues({ ...formValues, email: value })}
         />
-        {isFormSubmitted && isInvalid('name') && (
+        {isFormSubmitted && isInvalid('email') && (
           <InlineError message={'Required'} fieldID={'email'} />
         )}
         <TextField
@@ -71,13 +103,19 @@ const ContactForm = (props) => {
           onChange={(value) => setFormValues({ ...formValues, message: value })}
           multiline
         />
-        {isFormSubmitted && isInvalid('name') && (
+        {isFormSubmitted && isInvalid('message') && (
           <InlineError message={'Required'} fieldID={'message'} />
         )}{' '}
         <Button primary onClick={onFormSubmit}>
           Submit Query
         </Button>
       </FormLayout>
+      <ToastWrapper
+        active={toast.active}
+        message={toast.message}
+        error={toast.error}
+        onDismiss={() => setToast({ defaultToastOptions })}
+      />
     </Card>
   );
 };

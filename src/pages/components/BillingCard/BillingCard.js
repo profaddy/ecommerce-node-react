@@ -35,7 +35,7 @@ const BillingCard = (props) => {
               onSelectPlan(plan);
             }}
           >
-            Buy @ {plan.price}
+            Buy @ {plan.price}/Month
           </Button>
         </div>
       </div>
