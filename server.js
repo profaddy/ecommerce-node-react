@@ -63,8 +63,9 @@ app.prepare().then(() => {
         const { shop, accessToken } = ctx.session;
         try {
           const shopDetails = await Shop.findOne({ shopOrigin: shop }).exec();
-          console.log(shopDetails, shopDetails);
+          console.log(shopDetails, "shopDetails");
           if (isEmpty(shopDetails)) {
+            console.log("creating new shop...");
             const newShop = new Shop({
               _id: new mongoose.Types.ObjectId(),
               shopOrigin: shop,
@@ -73,6 +74,7 @@ app.prepare().then(() => {
               updated_at: new Date(),
             });
             await newShop.save();
+            console.log("shop created successfully");
           } else {
             await Shop.updateOne(
               { shopOrigin: shop },
