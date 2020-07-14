@@ -44,21 +44,21 @@ const postBilling = async (plan, shopOrigin) => {
     );
     return response.data.recurring_application_charge.confirmation_url;
     //  return ctx.redirect(response.data.recurring_application_charge.confirmation_url);
-    if (response.status !== 200 || response.statu !== 201) {
-      throw { status: response.status, msg: response.statusText };
-    }
-    ctx.status = response.status;
-    ctx.body = {
-      status: true,
-      msg: response,
-    };
+    // if (response.status !== 200 || response.statu !== 201) {
+    //   throw { status: response.status, msg: response.statusText };
+    // }
+    // ctx.status = response.status;
+    // ctx.body = {
+    //   status: true,
+    //   msg: response,
+    // };
   } catch (err) {
     console.log(err, 'error');
-    ctx.status = 400;
-    ctx.body = {
-      status: false,
-      msg: err.msg || err,
-    };
+    // ctx.status = 400;
+    // ctx.body = {
+    //   status: false,
+    //   msg: err.msg || err,
+    // };
   }
 };
 
