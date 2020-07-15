@@ -13,7 +13,7 @@ const postBilling = async (plan, shopOrigin) => {
       recurring_application_charge: {
         name: plan.name,
         price: plan.price.split('$')[0],
-        return_url: `https://${shopOrigin}/admin/apps/react-public-app`,
+        return_url: `https://${shopOrigin}/admin/apps/`,
         trial_days: 3,
         test: true,
       },
