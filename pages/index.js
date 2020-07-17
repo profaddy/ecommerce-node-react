@@ -1,43 +1,83 @@
 import React, { useEffect, useState } from 'react';
-import Dashboard from "../src/pages/dashboard/Dashboard.js";
+import Dashboard from '../src/pages/dashboard/Dashboard.js';
 import TabComponent from '../src/pages/components/TabComponent/TabComponent.js';
-import Pricing from "../src/pages/Pricing/Pricing.js";
-import ContactForm from "../src/pages/Contanctus/Contactus.js"
-import {Frame} from "@shopify/polaris";
+import Pricing from '../src/pages/Pricing/Pricing.js';
+import ContactForm from '../src/pages/Contanctus/Contactus.js';
+import { Frame, Spinner } from '@shopify/polaris';
+import api from '../utils/api.js';
+
 const Index = (props) => {
-   
+  const [isAuthSuccess, setAuthSuccess] = useState(false);
+  useEffect(() => {
+    getAuth();
+  });
+  const getAuth = async () => {
+    try {
+      const response = await api.get('test');
+      console.log('auth success', response);
+      if(status === "billing" || status === "activated"){
+        window.parent.location.href = response.data.data;
+      }
+      setAuthSuccess(true);
+      return response;
+    } catch (error){
+      console.log("error",error.response.statusText)
+      // window.parent.location.href = `https://react-node.myshopify.com/admin/apps`
+      console.log(error, 'error while auth');
+    }
+  };
   const tabs = [
     {
       id: 'Dashboard',
-      content:  "Dashboard" ,
+      content: 'Dashboard',
       accessibilityLabel: 'Dashboard',
       panelID: 'dashboard',
-      children:<Dashboard config={props.config}/>
+      children: <Dashboard config={props.config} />,
     },
     {
       id: 'Instructions',
-      content: 'Instariction',
+      content: 'Instructions',
       panelID: 'instructions',
-      children:<>Instructions will go here</>
+      children: <>Instructions will go here</>,
     },
     {
       id: 'Pricing',
       content: 'Pricing',
       panelID: 'pricing',
-      children:<Pricing config={props.config}/>
+      children: <Pricing config={props.config} />,
     },
     {
       id: 'Contact us',
       content: 'Contact us',
       accessibilityLabel: 'contact-us',
       panelID: 'contact-us',
-      children:<ContactForm config={props.config}/>
+      children: <ContactForm config={props.config} />,
     },
   ];
-  console.log(props);
   return (
     <Frame>
-      <TabComponent tabs={tabs}/>
+      {isAuthSuccess && <TabComponent tabs={tabs} />}
+      {!isAuthSuccess && (
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            marginTop: 100,
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          <div>
+            {' '}
+            <Spinner
+              accessibilityLabel="Verifying Billing ..."
+              size="large"
+              color="teal"
+            />
+          </div>
+          <div>Verifying Billing ...</div>
+        </div>
+      )}
     </Frame>
   );
 };

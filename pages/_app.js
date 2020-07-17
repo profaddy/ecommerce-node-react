@@ -18,13 +18,13 @@ class MyApp extends App {
           <title>Sample App</title>
           <meta charSet="utf-8" />
         </Head>
-        <Provider config={config} >
+        {/* <Provider config={config} > */}
           <AppProvider i18n={translations} config={config} >
               <CookiesProvider>
               <Component {...pageProps} config={config}/>
               </CookiesProvider>
           </AppProvider>
-        </Provider>
+        {/* </Provider> */}
       </React.Fragment>
     );
   }

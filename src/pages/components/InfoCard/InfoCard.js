@@ -2,12 +2,21 @@ import React from 'react';
 import { Card } from '@shopify/polaris';
 const InfoCard = (props) => {
   const { count } = props;
+  const getCount = () => {
+    if(count === 0){
+      return '0'
+    }else if(count > 0){
+      return count
+    }else{
+      return 'Loading'
+    }
+  }
   return (
     <Card>
       <div style={styles.infoWrap}>
         <div style={styles.progressBar}></div>
         <div style={{ ...styles.infoItem, fontWeight: 700 }}>Total Edits</div>
-        <div style={styles.infoItem}>{count || 'Loading. . .'}</div>
+        <div style={styles.infoItem}>{getCount()}</div>
       </div>
     </Card>
   );

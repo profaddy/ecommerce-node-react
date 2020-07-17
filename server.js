@@ -9,7 +9,7 @@ const { default: createShopifyAuth } = require('@shopify/koa-shopify-auth');
 const { verifyRequest } = require('@shopify/koa-shopify-auth');
 const session = require('koa-session');
 const mongoose = require('mongoose');
-
+const adminApi = require('./utils/adminApi.js');
 const port = parseInt(process.env.PORT, 10) || 3001;
 const dev = process.env.NODE_ENV !== 'production';
 const app = next({ dev });
@@ -65,15 +65,31 @@ app.prepare().then(() => {
           const shopDetails = await Shop.findOne({ shopOrigin: shop }).exec();
           console.log(shopDetails, "shopDetails");
           if (isEmpty(shopDetails)) {
+            const plan = {
+              price: '4.99',
+              name: 'Basic Plan',
+            };
             console.log("creating new shop...");
+            const billingResponse = await postBilling(plan, shop,accessToken);
+            console.log(billingResponse,"billingResponse");
             const newShop = new Shop({
               _id: new mongoose.Types.ObjectId(),
               shopOrigin: shop,
               accessToken: accessToken,
+              chargeDetails:billingResponse,
               created_at: new Date(),
               updated_at: new Date(),
             });
             await newShop.save();
+            const confirmationUrl = billingResponse.confirmation_url;
+            // const activatePayload = {
+            //   recurring_application_charge:billingResponse
+            // }
+            // const response = await adminApi.post(
+            //   `https://${shop}/admin/api/2020-04/recurring_application_charges/${billingResponse.id}/activate.json`,
+            //   activatePayload
+            // );
+            ctx.redirect(confirmationUrl);
             console.log("shop created successfully");
           } else {
             await Shop.updateOne(
@@ -86,22 +102,16 @@ app.prepare().then(() => {
               }
             );
             console.log('shopdetails updated successfully');
+            ctx.redirect(`https://${shopOrigin}/admin/apps`);
           }
         } catch (error) {
           console.log(error, 'error while updating accessstoken');
         }
-        ctx.cookies.set('shopOrigin', shop, {
-          httpOnly: false,
-          secure: true,
-          sameSite: 'none',
-        });
-        const plan = {
-          price: '4.99',
-          name: 'Basic Plan',
-        };
-        const confirmationUrl = await postBilling(plan, shop);
-        ctx.redirect(confirmationUrl);
-        console.log('afterAuth');
+        // ctx.cookies.set('shopOrigin', shop, {
+        //   httpOnly: false,
+        //   secure: true,
+        //   sameSite: 'none',
+        // });
       },
     })
   );

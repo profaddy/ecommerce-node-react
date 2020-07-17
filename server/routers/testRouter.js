@@ -1,84 +1,75 @@
 'use strict';
-// import Router from 'koa-router';
+const { isEmpty } = require('lodash');
+const Shop = require('../models/Shops.js');
 const Router = require('koa-router');
-// const router = new Router();
-const router = new Router({ prefix: '/auth' })
+const postBilling = require('../controller/billing/postBilling');
+const adminApi = require('../../utils/adminApi.js');
+const router = new Router({ prefix: '/api/v1/test' });
 
 router.get('/', async (ctx) => {
   try {
-    console.log("auth test",ctx,ctx.query)
-    const endpoint = ctx.params.endpoint;
-    const response = await fetch(
-      `https://${ctx.cookies.get('shopOrigin')}/admin/api/2020-04/products.json`,
-      {
-        headers: {
-          'X-Shopify-Access-Token': ctx.cookies.get('accessToken'),
-        },
-      }
-    );
-    const result = await response.json();
-    ctx.body = {
-      status: 'success',
-      data: result,
-    };
-  } catch (err) {
-    console.log(err);
-  }
-});
-router.put('/api/v1/:endpoint', async (ctx) => {
-  try {
-    console.log(ctx.request.body, 'ctx response');
-    const { editOption, editValue, variants } = ctx.request.body;
-    variants.forEach(async (variant) => {
-      const updatedPrice = getUpdatedPrice(
-        editOption,
-        Number(variant.price),
-        Number(editValue)
+    const shopOrigin = ctx.session.shop;
+    const shopDetails = await Shop.find({
+      shopOrigin: shopOrigin,
+    }).exec();
+    const accessToken = shopDetails[0].accessToken;
+    const chargeDetails = shopDetails[0].chargeDetails;
+    let confirmationUrl = null;
+    let status = "success";
+    if (!isEmpty(chargeDetails)) {
+      adminApi.defaults.headers.common[
+        'X-Shopify-Access-Token'
+      ] = `${shopDetails[0].accessToken}`;
+      const response = await adminApi.get(
+        `https://${shopOrigin}/admin/api/2020-04/recurring_application_charges/${chargeDetails.id}.json`
       );
-      console.log(updatedPrice, 'updatedPrice>>');
-      const url = `https://${ctx.cookies.get(
-        'shopOrigin'
-      )}/admin/api/2020-04/variants/${variant.id}.json`;
-      const payload = {
-        variant: {
-          id: variant.id,
-          price: `${updatedPrice}`,
-        },
+      console.log(response.data, 'getcharge daresponse');
+      const chargeStatus = response.data.recurring_application_charge.status;
+      if(chargeStatus !== 'active'){
+        const response = await adminApi.post(
+          `https://${shopOrigin}/admin/api/2020-04/recurring_application_charges/${chargeDetails.id}/activate.json`,
+          chargeDetails
+        );
+        status = "activate";
+        confirmationUrl = `https://${shopOrigin}/admin/apps`
+      }
+      if (chargeStatus !== 'active' &&  chargeStatus !== 'accepted') {
+        const plan = {
+          price: '4.99',
+          name: 'Basic Plan',
+        };
+        const billingResponse = await postBilling(plan, shopOrigin,accessToken);
+        confirmationUrl = billingResponse.confirmation_url;
+        status = "billing"
+        ctx.redirect(confirmationUrl);
+      }
+    } else {
+      const plan = {
+        price: '4.99',
+        name: 'Basic Plan',
       };
-      const response = await fetch(url, {
-        headers: {
-          'Content-type': 'application/json; charset=UTF-8', // Indicates the content
-          'X-Shopify-Access-Token': ctx.cookies.get('accessToken'),
-        },
-        method: 'put',
-        body: JSON.stringify(payload),
-      });
-      const resp = await response.json();
-      console.log(`reuqest completed for ${variant.title}`, resp);
-    });
-    const result = [];
+      const billingResponse = await postBilling(plan, shopOrigin,accessToken);
+       confirmationUrl = billingResponse.confirmation_url;
+       status = "billing"
+      ctx.redirect(confirmationUrl);
+    }
+
+    console.log('auth test');
+    ctx.status = 200;
     ctx.body = {
-      status: 'success',
-      data: result,
+      status: status,
+      data: confirmationUrl,
     };
   } catch (err) {
+    console.log(err,"error in test auth router")
+    ctx.status = 400;
+    ctx.body = {
+      status: "failure",
+      msg: err,
+    };
     console.log(err);
   }
 });
-module.exports = router
 
-//helpers
-const getUpdatedPrice = (editOption, currentPrice, editValue) => {
-  console.log(editOption, 'editOption');
-  switch (editOption) {
-    case 'changeToCustomValue':
-      return editValue;
-    case 'addPriceByAmount':
-      return currentPrice + editValue;
-    case 'addPriceByPercentage':
-      const offsetToBeAdded = (currentPrice * editValue) / 100;
-      return currentPrice + offsetToBeAdded;
-    default:
-      return editValue;
-  }
-};
+module.exports = router;
+
