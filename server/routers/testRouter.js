@@ -5,6 +5,7 @@ const Router = require('koa-router');
 const postBilling = require('../controller/billing/postBilling');
 const adminApi = require('../../utils/adminApi.js');
 const router = new Router({ prefix: '/api/v1/test' });
+const omit = require('lodash/omit')
 
 router.get('/', async (ctx) => {
   try {
@@ -25,10 +26,13 @@ router.get('/', async (ctx) => {
       );
       console.log(response.data, 'getcharge daresponse');
       const chargeStatus = response.data.recurring_application_charge.status;
-      if(chargeStatus !== 'active'){
+        const activatePayload = {
+              recurring_application_charge:chargeDetails
+            }
+      if(chargeStatus !== 'active' && chargeStatus === 'accepted'){
         const response = await adminApi.post(
           `https://${shopOrigin}/admin/api/2020-04/recurring_application_charges/${chargeDetails.id}/activate.json`,
-          chargeDetails
+          omit(activatePayload,['confirmation_url'])
         );
         status = "activate";
         confirmationUrl = `https://${shopOrigin}/admin/apps`
@@ -55,6 +59,7 @@ router.get('/', async (ctx) => {
     }
 
     console.log('auth test');
+
     ctx.status = 200;
     ctx.body = {
       status: status,

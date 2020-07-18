@@ -15,14 +15,15 @@ const Index = (props) => {
     try {
       const response = await api.get('test');
       console.log('auth success', response);
-      if(status === "billing" || status === "activated"){
-        window.parent.location.href = response.data.data;
+      const {status,data} = response.data
+      if(status === "billing"){
+        console.log(data,"url")
+        window.parent.location.href = data;
       }
       setAuthSuccess(true);
       return response;
     } catch (error){
       console.log("error",error.response.statusText)
-      // window.parent.location.href = `https://react-node.myshopify.com/admin/apps`
       console.log(error, 'error while auth');
     }
   };
