@@ -43,7 +43,7 @@ mongoose.connection.on('error', (error) => {
   console.log(error, 'mongodb error>>>>>>>>>>');
 });
 
-const { SHOPIFY_API_SECRET_KEY, SHOPIFY_API_KEY } = process.env;
+const { SHOPIFY_API_SECRET_KEY, SHOPIFY_API_KEY,APP_NAME } = process.env;
 // cron.schedule('30,*,*,* * * ', () => {
 //   console.log('running every 30 seconds');
 //   const
@@ -53,7 +53,6 @@ app.prepare().then(() => {
   const server = new Koa(app);
   server.use(session({ sameSite: 'none', secure: true }, server));
   server.keys = [SHOPIFY_API_SECRET_KEY];
-
   server.use(
     createShopifyAuth({
       apiKey: SHOPIFY_API_KEY,
@@ -102,7 +101,7 @@ app.prepare().then(() => {
               }
             );
             console.log('shopdetails updated successfully');
-            ctx.redirect(`https://${shopOrigin}/admin/apps`);
+            ctx.redirect(`https://${shop}/admin/apps/${APP_NAME}`);
           }
         } catch (error) {
           console.log(error, 'error while updating accessstoken');
