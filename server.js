@@ -6,6 +6,7 @@ const bodyParser = require('koa-bodyparser');
 const Koa = require('koa');
 const next = require('next');
 const { default: createShopifyAuth } = require('@shopify/koa-shopify-auth');
+const {receiveWebhook, registerWebhook} = require('@shopify/koa-shopify-webhooks');
 const { verifyRequest } = require('@shopify/koa-shopify-auth');
 const session = require('koa-session');
 const mongoose = require('mongoose');
@@ -43,7 +44,7 @@ mongoose.connection.on('error', (error) => {
   console.log(error, 'mongodb error>>>>>>>>>>');
 });
 
-const { SHOPIFY_API_SECRET_KEY, SHOPIFY_API_KEY,APP_NAME } = process.env;
+const { SHOPIFY_API_SECRET_KEY, SHOPIFY_API_KEY, APP_NAME } = process.env;
 // cron.schedule('30,*,*,* * * ', () => {
 //   console.log('running every 30 seconds');
 //   const
@@ -51,6 +52,13 @@ const { SHOPIFY_API_SECRET_KEY, SHOPIFY_API_KEY,APP_NAME } = process.env;
 
 app.prepare().then(() => {
   const server = new Koa(app);
+  server.use(
+    bodyParser({
+      detectJSON: function (ctx) {
+        return /\.json$/i.test(ctx.path);
+      },
+    })
+  );
   server.use(session({ sameSite: 'none', secure: true }, server));
   server.keys = [SHOPIFY_API_SECRET_KEY];
   server.use(
@@ -61,6 +69,19 @@ app.prepare().then(() => {
       scopes: ['read_products', 'write_products'],
       async afterAuth(ctx) {
         const { shop, accessToken } = ctx.session;
+        const registration = await registerWebhook({
+        address: `https://productedit.vowelweb.com/webhooks/app/uninstalled`,
+        topic: 'APP_UNINSTALLED',
+        accessToken,
+        shop,
+        apiVersion:"2020-04"
+      });
+
+      if (registration.success) {
+        console.log('Successfully registered webhook!');
+      } else {
+        console.log('Failed to register webhook', registration.result);
+      }
         console.log(shop,accessToken,"tokens")
         try {
           const shopDetails = await Shop.findOne({ shopOrigin: shop }).exec();
@@ -79,6 +100,7 @@ app.prepare().then(() => {
               shopOrigin: shop,
               accessToken: accessToken,
               chargeDetails:billingResponse,
+              isAppInstalled:true,
               created_at: new Date(),
               updated_at: new Date(),
             });
@@ -93,8 +115,9 @@ app.prepare().then(() => {
             // );
             return ctx.redirect(confirmationUrl);
             console.log("shop created successfully");
-          } else {
+          } else if((!isEmpty(shopDetails) && shopDetails.isAppInstalled === false)){
             console.log(shopDetails,"shopDetails");
+
             const plan = {
               price: '4.99',
               name: 'Basic Plan',
@@ -115,6 +138,9 @@ app.prepare().then(() => {
             return ctx.redirect(confirmationUrl);
             console.log('shopdetails updated successfully');
             // ctx.redirect(`https://${shop}/admin/apps/${APP_NAME}`);
+          }else{
+            console.log("false fallback to createshopifyauth willbe redirected to the app")
+            ctx.redirect(`https://${shop}/admin/apps/${APP_NAME}`);
           }
         } catch (error) {
           console.log(error, 'error while updating accessstoken');
@@ -122,14 +148,29 @@ app.prepare().then(() => {
       },
     })
   );
-  server.use(verifyRequest());
   server.use(
-    bodyParser({
-      detectJSON: function (ctx) {
-        return /\.json$/i.test(ctx.path);
-      },
-    })
-  );
+  receiveWebhook({
+    path: '/webhooks/app/uninstalled',
+    secret: SHOPIFY_API_SECRET_KEY,
+    // called when a valid webhook is received
+    onReceived(ctx) {
+      console.log('received webhook: ', ctx.state.webhook);
+      async function updateDatabase(){
+      await Shop.updateOne(
+        { shopOrigin: ctx.state.webhook.domain },
+        {
+          $set: {
+            isAppInstalled:false
+          },
+        }
+      );
+      console.log("install flag set to false")
+    }
+    updateDatabase();
+    },
+  }),
+);
+  server.use(verifyRequest());
   server.use(productRouter.routes());
   server.use(productRouter.allowedMethods());
   server.use(taskProgressRouter.routes());

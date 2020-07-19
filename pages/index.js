@@ -71,12 +71,12 @@ const Index = (props) => {
           <div>
             {' '}
             <Spinner
-              accessibilityLabel="Verifying Billing ..."
+              accessibilityLabel="Loading App ..."
               size="large"
               color="teal"
             />
           </div>
-          <div>Verifying Billing ...</div>
+          <div>Loading App ...</div>
         </div>
       )}
     </Frame>
