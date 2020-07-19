@@ -10,20 +10,31 @@ const omit = require('lodash/omit')
 router.get('/', async (ctx) => {
   try {
     const shopOrigin = ctx.session.shop;
-    const shopDetails = await Shop.find({
+    const shopDetails = await Shop.findOne({
       shopOrigin: shopOrigin,
     }).exec();
-    const accessToken = shopDetails[0].accessToken;
-    const chargeDetails = shopDetails[0].chargeDetails;
+    const accessToken = shopDetails.accessToken;
+    const chargeDetails = shopDetails.chargeDetails;
     let confirmationUrl = null;
     let status = "success";
     if (!isEmpty(chargeDetails)) {
       adminApi.defaults.headers.common[
         'X-Shopify-Access-Token'
-      ] = `${shopDetails[0].accessToken}`;
+      ] = `${shopDetails.accessToken}`;
       const response = await adminApi.get(
         `https://${shopOrigin}/admin/api/2020-04/recurring_application_charges/${chargeDetails.id}.json`
       );
+      await Shop.updateOne(
+        { shopOrigin: shopOrigin },
+        {
+          $set: {
+            accessToken: shopDetails.accessToken,
+            chargeDetails:response.data.recurring_application_charge,
+            updated_at: new Date(),
+          },
+        }
+      );
+      console.log("charge details updated successfully")
       console.log(response.data, 'getcharge daresponse');
       const chargeStatus = response.data.recurring_application_charge.status;
         const activatePayload = {
@@ -41,6 +52,7 @@ router.get('/', async (ctx) => {
         const plan = {
           price: '4.99',
           name: 'Basic Plan',
+          trial_days:chargeDetails.trial_days
         };
         const billingResponse = await postBilling(plan, shopOrigin,accessToken);
         confirmationUrl = billingResponse.confirmation_url;
@@ -51,6 +63,7 @@ router.get('/', async (ctx) => {
       const plan = {
         price: '4.99',
         name: 'Basic Plan',
+        trial_days:chargeDetails.trial_days
       };
       const billingResponse = await postBilling(plan, shopOrigin,accessToken);
        confirmationUrl = billingResponse.confirmation_url;
@@ -77,4 +90,3 @@ router.get('/', async (ctx) => {
 });
 
 module.exports = router;
-

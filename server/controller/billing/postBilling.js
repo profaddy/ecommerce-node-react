@@ -1,8 +1,11 @@
 const Shop = require('../../models/Shops.js');
 const adminApi = require('../../../utils/adminApi.js');
-
+const dotenv = require('dotenv');
+dotenv.config();
+const { APP_NAME } = process.env;
 const postBilling = async (plan, shopOrigin, accessToken) => {
   try {
+    console.log("APP_NAME>>>",APP_NAME)
     const shopDetails = await Shop.find({
       shopOrigin: shopOrigin,
     }).exec();
@@ -10,8 +13,8 @@ const postBilling = async (plan, shopOrigin, accessToken) => {
       recurring_application_charge: {
         name: plan.name,
         price: plan.price.split('$')[0],
-        return_url: `https://${shopOrigin}/admin/apps/`,
-        trial_days: 3,
+        return_url: `https://${shopOrigin}/admin/apps/${APP_NAME}`,
+        trial_days: plan.trial_days,
         test: true,
       },
     };
@@ -24,8 +27,7 @@ const postBilling = async (plan, shopOrigin, accessToken) => {
       payload
     );
     console.log(
-      response,
-      response.data.recurring_application_charge.confirmation_url,
+      response.data.recurring_application_charge,
       'resonse'
     );
     return response.data.recurring_application_charge;

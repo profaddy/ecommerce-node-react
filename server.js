@@ -10,7 +10,7 @@ const { verifyRequest } = require('@shopify/koa-shopify-auth');
 const session = require('koa-session');
 const mongoose = require('mongoose');
 const adminApi = require('./utils/adminApi.js');
-const port = parseInt(process.env.PORT, 10) || 3001;
+const port = parseInt(process.env.PORT, 10) || 3002;
 const dev = process.env.NODE_ENV !== 'production';
 const app = next({ dev });
 const handle = app.getRequestHandler();
@@ -57,9 +57,11 @@ app.prepare().then(() => {
     createShopifyAuth({
       apiKey: SHOPIFY_API_KEY,
       secret: SHOPIFY_API_SECRET_KEY,
+      accessMode: 'offline',
       scopes: ['read_products', 'write_products'],
       async afterAuth(ctx) {
         const { shop, accessToken } = ctx.session;
+        console.log(shop,accessToken,"tokens")
         try {
           const shopDetails = await Shop.findOne({ shopOrigin: shop }).exec();
           console.log(shopDetails, "shopDetails");
@@ -67,9 +69,10 @@ app.prepare().then(() => {
             const plan = {
               price: '4.99',
               name: 'Basic Plan',
+              trial_days:3
             };
             console.log("creating new shop...");
-            const billingResponse = await postBilling(plan, shop,accessToken);
+            const billingResponse = await postBilling(plan,shop,accessToken);
             console.log(billingResponse,"billingResponse");
             const newShop = new Shop({
               _id: new mongoose.Types.ObjectId(),
@@ -88,29 +91,34 @@ app.prepare().then(() => {
             //   `https://${shop}/admin/api/2020-04/recurring_application_charges/${billingResponse.id}/activate.json`,
             //   activatePayload
             // );
-            ctx.redirect(confirmationUrl);
+            return ctx.redirect(confirmationUrl);
             console.log("shop created successfully");
           } else {
+            console.log(shopDetails,"shopDetails");
+            const plan = {
+              price: '4.99',
+              name: 'Basic Plan',
+              trial_days:shopDetails.chargeDetails.trial_days
+            };
+            const billingResponse = await postBilling(plan, shop,accessToken);
             await Shop.updateOne(
               { shopOrigin: shop },
               {
                 $set: {
                   accessToken: accessToken,
+                  chargeDetails:billingResponse,
                   updated_at: new Date(),
                 },
               }
             );
+            const confirmationUrl = billingResponse.confirmation_url;
+            return ctx.redirect(confirmationUrl);
             console.log('shopdetails updated successfully');
-            ctx.redirect(`https://${shop}/admin/apps/${APP_NAME}`);
+            // ctx.redirect(`https://${shop}/admin/apps/${APP_NAME}`);
           }
         } catch (error) {
           console.log(error, 'error while updating accessstoken');
         }
-        // ctx.cookies.set('shopOrigin', shop, {
-        //   httpOnly: false,
-        //   secure: true,
-        //   sameSite: 'none',
-        // });
       },
     })
   );
@@ -144,11 +152,11 @@ app.prepare().then(() => {
   const serverCallback = server.callback();
   if (process.env.NODE_ENV === 'production') {
     var privateKey = fs.readFileSync(
-      '/etc/letsencrypt/live/react.vowelweb.com/privkey.pem',
+      '/etc/letsencrypt/live/productedit.vowelweb.com/privkey.pem',
       'utf8'
     );
     var certificate = fs.readFileSync(
-      '/etc/letsencrypt/live/react.vowelweb.com/fullchain.pem',
+      '/etc/letsencrypt/live/productedit.vowelweb.com/fullchain.pem',
       'utf8'
     );
     const config = {
