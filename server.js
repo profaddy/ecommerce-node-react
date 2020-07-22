@@ -32,7 +32,7 @@ const connectMongod = async () => {
   try {
     await mongoose.connect(
       `mongodb://localhost:27017/?readPreference=primary&appname=MongoDB%20Compass%20Community&ssl=false`,
-      { useUnifiedTopology: true, useNewUrlParser: true }
+      { useUnifiedTopology: true, useNewUrlParser: true, dbName:"Bulkedit" }
     );
   } catch (error) {
     console.log('mongodb connection failed');
