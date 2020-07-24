@@ -107,6 +107,7 @@ const PriceEdit = (props) => {
     console.log('values', values);
   };
   const updateSelectedProducts = async () => {
+    try{
     setUpdateLoading(true);
     setToast({
       active: true,
@@ -138,6 +139,7 @@ const PriceEdit = (props) => {
         variantFilterOptions,
         editOption,
         editValue,
+        products:products
       };
       const { data } = await api.put(`products`, paylaod);
       setToast({
@@ -159,6 +161,17 @@ const PriceEdit = (props) => {
       });
       setFormErrors(errors);
     }
+  }catch(error){
+    setToast({
+      active: true,
+      message: `products updaing failed - ${
+        error.response.statusText || err
+      }`,
+      error: true,
+    });
+    setUpdateLoading(false);
+    setFormErrors({...formErrors,updateFialed:error.response.statusText});
+  }
   };
 
   return (
@@ -206,8 +219,9 @@ const PriceEdit = (props) => {
             <div style={styles.buttonWrap}>
               <Button
                 onClick={() => {
-                  setFormValues(initialFormValues);
                   setProducts([]);
+                  setProductState("empty");
+                  setFormValues(initialFormValues);
                 }}
                 disabled={isUpdateLoading}
               >
