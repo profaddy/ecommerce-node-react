@@ -5,6 +5,7 @@ import Pricing from '../src/pages/Pricing/Pricing.js';
 import ContactForm from '../src/pages/Contanctus/Contactus.js';
 import { Frame, Spinner } from '@shopify/polaris';
 import api from '../utils/api.js';
+import ManageTasks from "../src/pages/ManageTasks/ManagaeTasks.js"
 
 const Index = (props) => {
   const [isAuthSuccess, setAuthSuccess] = useState(false);
@@ -34,6 +35,13 @@ const Index = (props) => {
       accessibilityLabel: 'Dashboard',
       panelID: 'dashboard',
       children: <Dashboard config={props.config} />,
+    },
+    {
+      id: 'View Tasks',
+      content: 'View Tasks',
+      accessibilityLabel: 'view-tasks',
+      panelID: 'view-tasks',
+      children: <ManageTasks />,
     },
     {
       id: 'Instructions',
