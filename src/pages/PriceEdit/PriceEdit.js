@@ -102,6 +102,11 @@ const PriceEdit = (props) => {
       });
     }
   };
+  const resetForm = () => {
+    setProducts([]);
+    setProductState("empty");
+    setFormValues(initialFormValues);
+  }
   const onSubmit = (e) => {
     e.preventDefault();
     console.log('values', values);
@@ -145,6 +150,7 @@ const PriceEdit = (props) => {
         message: `products updated successfully`,
         error: false,
       });
+      resetForm();
       // setFormSubmit(false);
       console.log(data, 'data');
       // setQueueId(null);
@@ -160,6 +166,7 @@ const PriceEdit = (props) => {
       setFormErrors(errors);
     }
   };
+
 
   return (
     <Frame>
@@ -205,10 +212,7 @@ const PriceEdit = (props) => {
           <div style={styles.footerWrap}>
             <div style={styles.buttonWrap}>
               <Button
-                onClick={() => {
-                  setFormValues(initialFormValues);
-                  setProducts([]);
-                }}
+                onClick={resetForm}
                 disabled={isUpdateLoading}
               >
                 Reset
