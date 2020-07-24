@@ -9,6 +9,7 @@ const { default: createShopifyAuth } = require('@shopify/koa-shopify-auth');
 const {receiveWebhook, registerWebhook} = require('@shopify/koa-shopify-webhooks');
 const { verifyRequest } = require('@shopify/koa-shopify-auth');
 const session = require('koa-session');
+const Router = require('koa-router');
 const mongoose = require('mongoose');
 const adminApi = require('./utils/adminApi.js');
 const port = parseInt(process.env.PORT, 10) || 3002;
@@ -52,6 +53,7 @@ const { SHOPIFY_API_SECRET_KEY, SHOPIFY_API_KEY, APP_NAME } = process.env;
 
 app.prepare().then(() => {
   const server = new Koa(app);
+  const router = new Router();
   server.use(
     bodyParser({
       detectJSON: function (ctx) {
@@ -183,6 +185,29 @@ app.prepare().then(() => {
   server.use(completedTaskRouter.allowedMethods());
   server.use(emailRouter.routes());
   server.use(emailRouter.allowedMethods());
+  server.use(router.routes());
+  //shopify mandotory hooks
+  router.get('/GetShopifyCustomerdata', async (ctx) => {
+    try {
+      ctx.status(200);
+    } catch (err) {
+      console.log(err)
+    }
+  });
+  router.get('/EraseShopifyCustomerdata', async (ctx) => {
+    try {
+      ctx.status(200);
+    } catch (err) {
+      console.log(err)
+    }
+  });
+  router.get('/EraseShopData', async (ctx) => {
+    try {
+      ctx.status(200);
+    } catch (err) {
+      console.log(err)
+    }
+  });
   server.use(async (ctx) => {
     await handle(ctx.req, ctx.res);
     ctx.respond = false;
