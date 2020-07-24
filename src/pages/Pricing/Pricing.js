@@ -18,10 +18,9 @@ const Pricing = (props) => {
       price: '4.99$',
       name: 'Basic Plan',
       functionalities: [
-        { name: 'Edit all product details', accessible: true },
-        { name: '5 Bulk actions', accessible: true },
-        { name: '30 day backup', accessible: true },
-        { name: 'Schedule Products', accessible: false },
+        { name: 'Bulk Price Edit', accessible: true },
+        { name: 'Filter Products Before Edit', accessible: true },
+        { name: 'Multiple Price Edit Option', accessible: true },
       ],
     },
   ];
