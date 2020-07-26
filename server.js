@@ -21,6 +21,7 @@ const testRouter = require('./server/routers/testRouter');
 const billingRouter = require('./server/routers/billingRouter.js');
 const taskProgressRouter = require('./server/routers/FetchTaskProgress.js');
 const completedTaskRouter = require('./server/routers/CompletedTaskRouter.js');
+const queuedTaskRouter = require('./server/routers/QueuedTaskRouter.js');
 const emailRouter = require('./server/routers/EmailRouter.js');
 const Shop = require('./server/models/Shops.js');
 const { isEmpty } = require('lodash');
@@ -45,7 +46,7 @@ mongoose.connection.on('error', (error) => {
   console.log(error, 'mongodb error>>>>>>>>>>');
 });
 
-const { SHOPIFY_API_SECRET_KEY, SHOPIFY_API_KEY, APP_NAME } = process.env;
+const { SHOPIFY_API_SECRET_KEY, SHOPIFY_API_KEY, APP_NAME, HOST } = process.env;
 // cron.schedule('30,*,*,* * * ', () => {
 //   console.log('running every 30 seconds');
 //   const
@@ -72,7 +73,7 @@ app.prepare().then(() => {
       async afterAuth(ctx) {
         const { shop, accessToken } = ctx.session;
         const registration = await registerWebhook({
-        address: `https://productedit.vowelweb.com/webhooks/app/uninstalled`,
+        address: `https://${HOST}/webhooks/app/uninstalled`,
         topic: 'APP_UNINSTALLED',
         accessToken,
         shop,
@@ -183,6 +184,8 @@ app.prepare().then(() => {
   server.use(billingRouter.routes());
   server.use(completedTaskRouter.routes());
   server.use(completedTaskRouter.allowedMethods());
+  server.use(queuedTaskRouter.routes());
+  server.use(queuedTaskRouter.allowedMethods());
   server.use(emailRouter.routes());
   server.use(emailRouter.allowedMethods());
   server.use(router.routes());

@@ -2,7 +2,7 @@ import React from 'react';
 import ProductTable from '../../components/ProductTable/ProductTable';
 import { Card, Spinner } from '@shopify/polaris';
 const Step2 = (props) => {
-  const { products, productState} = props;
+  const { products, productState, showTitle } = props;
 
   const getProductsTableContent = () => {
     switch (productState) {
@@ -48,7 +48,7 @@ const Step2 = (props) => {
   };
   return (
     <div>
-      <div style={styles.step}>STEP2: Preview Products</div>
+      {showTitle && <div style={styles.step}>STEP2: Preview Products</div>}
       <Card sectioned={productState !== 'success'}>
         {getProductsTableContent()}
       </Card>
@@ -70,5 +70,8 @@ const styles = {
     textAlign: 'center',
     color: 'red',
   },
+};
+Step2.defaultprops = {
+  showTitle: true,
 };
 export default Step2;

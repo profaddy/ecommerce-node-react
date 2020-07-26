@@ -34,26 +34,18 @@ const ProductTable = (props) => {
     <>
       <div style={styles.tableWrapper}>
         <div style={styles.headerWrapper}>
-          <div style={styles.columnItem}>Avatar</div>
-          <div style={styles.columnItem}>Title</div>
-          <div style={styles.columnItem}>Product Type</div>
-          <div style={styles.columnItem}>Vendors</div>
-          <div style={{ ...styles.columnItem, flex: 3 }}>Variants</div>
+          <div style={styles.columnItem}>Edit Type</div>
+          <div style={styles.columnItem}>Edit Option</div>
+          <div style={styles.columnItem}>Edit Value</div>
+          <div style={{ ...styles.columnItem, flex: 3 }}>Variants Filter</div>
         </div>
         <div style={styles.listWrapper}>
           {data.map((product) => {
             return (
               <div style={styles.rowWrap}>
-                <div style={styles.columnItem}>
-                  <img
-                    src={get(product, 'images[0].src') || null}
-                    width={50}
-                    height={50}
-                  />
-                </div>
-                <div style={styles.columnItem}>{product.title}</div>
                 <div style={styles.columnItem}>{product.type}</div>
-                <div style={styles.columnItem}>{product.vendor}</div>
+                <div style={styles.columnItem}>{product.editOption}</div>
+                <div style={styles.columnItem}>{product.editValue}</div>
                 <div
                   style={{
                     ...styles.columnItem,
@@ -63,44 +55,40 @@ const ProductTable = (props) => {
                   }}
                 >
                   <div style={styles.variantHeaderWrapper}>
-                    <div style={styles.variantItem}>options|size</div>
-                    <div style={styles.variantItem}>price</div>
-                    <div style={styles.variantItem}>compared price</div>
-                    <div style={styles.variantItem}>weight</div>
+                    <div style={styles.variantItem}>Filter By</div>
+                    <div style={styles.variantItem}>Filter Action</div>
+                    <div style={styles.variantItem}>Filter Value</div>
                   </div>
-                  {product.variants.map((variant) => {
-                    return (
-                      <div style={styles.rowWrap}>
-                        <div style={styles.variantItem}>{variant.title}</div>
-                        <div style={styles.variantItem}>{variant.price}</div>
-                        <div style={styles.variantItem}>
-                          {variant.compare_at_price}
-                        </div>
-                        <div style={styles.variantItem}>
-                          {variant.weight} {variant.weight_unit}
-                        </div>
-                      </div>
-                    );
-                  })}
+                  <div style={styles.rowWrap}>
+                    <div style={styles.variantItem}>
+                      {product.variantFilterOptions.filter}
+                    </div>
+                    <div style={styles.variantItem}>
+                      {product.variantFilterOptions.filterAction}
+                    </div>
+                    <div style={styles.variantItem}>
+                      {product.variantFilterOptions.filterValue}
+                    </div>
+                  </div>
                 </div>
               </div>
             );
           })}
         </div>
       </div>
-      <div style={styles.pagination}>
+      {/* <div style={styles.pagination}>
         <Pagination
           label={`Page ${selected + 1} of ${pageCount}`}
           hasPrevious={selected + 1 !== 1}
           onPrevious={() => {
             handlPageClick('previous');
           }}
-          hasNext={selected + 1 !== pageCount}
+          hasNext={selected + 1 !== 100}
           onNext={() => {
             handlPageClick('next');
           }}
         />
-      </div>
+      </div> */}
     </>
   );
 };
